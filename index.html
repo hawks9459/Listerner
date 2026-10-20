@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#cb070b">
+  <title>Listener | RPRT HAWKS #9459</title>
+  <link rel="stylesheet" href="listener.css?v=20261020-1">
+  <link rel="stylesheet" href="listener-game.css?v=20261015-3">
+</head>
+<body>
+  <div class="splash" id="splash" aria-label="RPRT HAWKS, equipe 9459">
+    <div class="splash-content">
+      <img class="splash-logo" src="hawk-transparent.png" alt="Logo da equipe RPRT HAWKS">
+      <p class="splash-team">RPRT HAWKS <span>#9459</span></p>
+      <span class="splash-rule" aria-hidden="true"></span>
+    </div>
+    <button class="splash-skip" id="splashSkip" type="button">Continuar</button>
+  </div>
+
+  <header class="site-header" id="siteHeader" hidden>
+    <button class="navigation-menu-toggle" id="navigationMenuToggle" type="button" aria-label="Abrir menu" aria-controls="navigationDrawer" aria-expanded="false" hidden>
+      <span></span><span></span><span></span>
+    </button>
+    <a class="team-brand" href="#inicio" data-page-link="home" aria-label="Página inicial">
+      <span class="team-logo"><img src="hawk-transparent.png" alt="Logo RPRT HAWKS"></span>
+    </a>
+    <nav class="header-actions" aria-label="Navegação principal">
+      <button class="header-link" type="button" data-page-link="about">Sobre o projeto</button>
+      <a class="team-site-link" href="https://hawks9459.github.io/Hawks9459-Site/" target="_blank" rel="noopener noreferrer">RPRT HAWKS #9459</a>
+    </nav>
+  </header>
+  <div class="navigation-scrim" id="navigationScrim" hidden></div>
+  <aside class="navigation-drawer" id="navigationDrawer" role="dialog" aria-modal="true" aria-label="Menu do Listener" aria-hidden="true" hidden>
+    <div class="navigation-drawer-heading">
+      <h2>Menu</h2>
+      <button class="text-button" id="closeNavigationMenu" type="button" aria-label="Fechar menu">Fechar</button>
+    </div>
+    <nav class="navigation-drawer-links" aria-label="Áreas do Listener">
+      <button type="button" data-menu-page="trail">Trilha</button>
+      <button type="button" data-menu-page="performance">Desempenho</button>
+      <button type="button" data-menu-page="settings">Configurações</button>
+      <button type="button" data-menu-page="game" id="resumeMenuChallenge" hidden>Retomar desafio</button>
+    </nav>
+  </aside>
+
+  <main>
+    <section class="page home-page" id="page-home" data-page="home" hidden>
+      <div class="home-hero">
+        <figure class="robot-portrait">
+          <img src="listenerreal-removebg-preview.png" alt="Robô Listener físico da equipe RPRT HAWKS">
+        </figure>
+        <div class="hero-copy">
+          <p class="eyebrow">RPRT HAWKS #9459</p>
+          <h1>Listener</h1>
+          <p class="hero-message">Transforme suas ideias em comandos. Planeje, execute e descubra a lógica por trás de cada movimento.</p>
+          <button class="play-button" id="playButton" type="button">
+            <span>Jogar</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
+          </button>
+          <p class="pending-submission-notice" id="pendingSubmissionNotice" role="status" aria-live="polite" hidden></p>
+          <p class="home-footnote">Uma ideia, uma sequência de comandos, um novo caminho.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="page onboarding-page" id="page-questionnaire" data-page="questionnaire" hidden>
+      <div class="flow-heading">
+        <button class="home-button" type="button" data-page-link="home" aria-label="Voltar à página inicial" title="Início">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1Z"/></svg>
+        </button>
+        <div><p class="eyebrow">ANTES DE COMEÇAR</p><h1>Vamos preparar sua jornada</h1></div>
+      </div>
+      <p class="flow-intro">Conte um pouco sobre você para ajustarmos a linguagem do jogo.</p>
+      <form id="playerForm" class="player-form" novalidate>
+        <div class="form-field">
+          <label for="playerName">Nome</label>
+          <input id="playerName" name="name" type="text" autocomplete="given-name" maxlength="80" required aria-describedby="playerNameError">
+          <span class="field-error" id="playerNameError"></span>
+        </div>
+        <div class="form-field">
+          <label for="playerAge">Idade</label>
+          <input id="playerAge" name="age" type="number" inputmode="numeric" min="1" max="120" step="1" required aria-describedby="playerAgeError ageGuidance">
+          <span class="field-error" id="playerAgeError" role="alert"></span>
+          <span class="field-hint" id="ageGuidance">O jogo foi criado para pessoas a partir de 6 anos.</span>
+        </div>
+        <div class="form-field">
+          <label for="accessSource">Como conheceu ou acessou o jogo?</label>
+          <select id="accessSource" name="accessSource" required aria-describedby="accessSourceError">
+            <option value="">Selecione uma opção</option>
+          </select>
+          <span class="field-error" id="accessSourceError"></span>
+        </div>
+        <div class="form-field" id="otherSourceField" hidden>
+          <label for="accessDetail">Conte como conheceu ou acessou</label>
+          <input id="accessDetail" name="accessDetail" type="text" maxlength="120" aria-describedby="accessDetailError">
+          <span class="field-error" id="accessDetailError"></span>
+        </div>
+        <p class="form-notice" id="formNotice" role="status" aria-live="polite"></p>
+        <button class="play-button form-submit" type="submit"><span>Ver a trilha</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button>
+      </form>
+      <p class="privacy-note">Com o serviço configurado, os dados iniciais são enviados para registrar a sessão. Sem ele, ficam na memória até o envio final; se o envio não estiver disponível, os dados pendentes são preservados neste dispositivo até nova tentativa.</p>
+    </section>
+
+    <section class="page trail-page" id="page-trail" data-page="trail" hidden>
+      <div class="flow-heading trail-heading">
+        <button class="home-button" type="button" data-page-link="home" aria-label="Voltar à página inicial" title="Início">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1Z"/></svg>
+        </button>
+        <div><p class="eyebrow">SUA JORNADA</p><h1>Fundamentos da lógica de programação</h1></div>
+      </div>
+      <div class="profile-summary" id="profileSummary" aria-live="polite"></div>
+
+      <ol class="foundation-track" id="foundationTrack" aria-label="Trilha de fundamentos da lógica de programação">
+        <li class="foundation-node is-unlocked" data-foundation-node="sequencing">
+          <button class="foundation-button" type="button" data-foundation="sequencing" aria-describedby="sequencingProgress">
+            <span class="foundation-icon" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M12 12h5M12 24h5M12 36h5M23 12h13M23 24h13M23 36h13"/><circle cx="9" cy="12" r="2"/><circle cx="9" cy="24" r="2"/><circle cx="9" cy="36" r="2"/></svg></span>
+            <span class="foundation-name">Sequenciamento</span>
+            <span class="foundation-state">Liberado</span>
+            <span class="challenge-progress" id="sequencingProgress"><i data-challenge="sequencing-1"></i><i data-challenge="sequencing-2"></i><span data-progress-label="sequencing">0 de 2 desafios</span></span>
+          </button>
+        </li>
+        <li class="foundation-node is-locked" data-foundation-node="repetition">
+          <button class="foundation-button" type="button" data-foundation="repetition" aria-describedby="repetitionProgress" disabled>
+            <span class="foundation-icon" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M36 19a13 13 0 0 0-23-5l-3 4M12 11l1 7 7-1M12 29a13 13 0 0 0 23 5l3-4m-2 7-1-7-7 1"/></svg></span>
+            <span class="foundation-name">Repetição</span>
+            <span class="foundation-state">Bloqueado</span>
+            <span class="challenge-progress" id="repetitionProgress"><i data-challenge="repetition-1"></i><i data-challenge="repetition-2"></i><span data-progress-label="repetition">0 de 2 desafios</span></span>
+          </button>
+        </li>
+        <li class="foundation-node is-locked" data-foundation-node="conditionals">
+          <button class="foundation-button" type="button" data-foundation="conditionals" aria-describedby="conditionalsProgress" disabled>
+            <span class="foundation-icon" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M10 10h12v9M22 19H12v13h8M22 19h13v13h-8M10 10l5-5m-5 5 5 5M20 32l-5-5m5 5-5 5M27 32l5-5m-5 5 5 5"/></svg></span>
+            <span class="foundation-name">Condicionais</span>
+            <span class="foundation-state">Bloqueado</span>
+            <span class="challenge-progress" id="conditionalsProgress"><i data-challenge="conditionals-1"></i><i data-challenge="conditionals-2"></i><span data-progress-label="conditionals">0 de 2 desafios</span></span>
+          </button>
+        </li>
+      </ol>
+      <p class="trail-status" id="trailStatus" role="status" aria-live="polite">Conclua os desafios em ordem para liberar o próximo fundamento.</p>
+      <div class="trail-actions">
+        <button class="text-button" type="button" id="resumeTrailChallenge" hidden>Retomar desafio atual</button>
+        <button class="text-button" type="button" id="editPlayerButton">Voltar aos seus dados</button>
+      </div>
+      <div class="sr-only" id="challengeAnnouncement" aria-live="polite"></div>
+    </section>
+
+    <section class="page learning-page" id="page-performance" data-page="performance" hidden>
+      <div class="flow-heading">
+        <div><p class="eyebrow">SUA JORNADA</p><h1>Desempenho</h1></div>
+      </div>
+      <p class="flow-intro">Métricas calculadas a partir de desafios concluídos e dicas utilizadas.</p>
+      <div class="performance-summary" id="performanceSummary" aria-live="polite"></div>
+      <section class="learning-section" aria-labelledby="achievementsTitle">
+        <h2 id="achievementsTitle">Metas atingidas</h2>
+        <ul class="achievement-list" id="achievementList"></ul>
+      </section>
+      <section class="learning-section" aria-labelledby="historyTitle">
+        <h2 id="historyTitle">Conquistas recentes</h2>
+        <ol class="learning-history" id="learningHistory"></ol>
+      </section>
+      <button class="text-button" type="button" data-menu-page="trail">Voltar à trilha</button>
+      <button class="text-button" type="button" id="resumePerformanceChallenge" hidden>Retomar desafio atual</button>
+    </section>
+
+    <section class="page learning-page" id="page-settings" data-page="settings" hidden>
+      <div class="flow-heading">
+        <div><p class="eyebrow">PREFERÊNCIAS</p><h1>Configurações</h1></div>
+      </div>
+      <p class="flow-intro">Ajuste recursos de acessibilidade e áudio neste navegador.</p>
+      <div class="settings-list">
+        <label class="settings-toggle"><span><strong>Leitura em voz alta</strong><small>Lê feedbacks e permite ouvir o desafio atual.</small></span><input id="settingReadAloud" type="checkbox"></label>
+        <div class="settings-audio-actions">
+          <button class="text-button" id="speakChallenge" type="button">Ouvir desafio atual</button>
+          <button class="text-button" id="stopSpeech" type="button">Interromper leitura</button>
+        </div>
+        <p class="settings-status" id="speechStatus" role="status" aria-live="polite"></p>
+        <label class="settings-toggle"><span><strong>Efeitos sonoros</strong><small>Sinais curtos de sucesso ou bloqueio.</small></span><input id="settingSound" type="checkbox"></label>
+        <label class="settings-range" for="settingVolume"><span><strong>Volume dos efeitos</strong><small id="volumeValue">40%</small></span><input id="settingVolume" type="range" min="0" max="100" step="5" value="40"></label>
+        <label class="settings-toggle"><span><strong>Alto contraste</strong><small>Aumenta contraste de bordas e textos.</small></span><input id="settingHighContrast" type="checkbox"></label>
+        <label class="settings-toggle"><span><strong>Reduzir movimento</strong><small>Reduz animações decorativas.</small></span><input id="settingReducedMotion" type="checkbox"></label>
+        <p class="settings-status" id="settingsStatus" role="status" aria-live="polite">Preferências salvas neste navegador.</p>
+      </div>
+      <button class="text-button" type="button" data-menu-page="trail">Voltar à trilha</button>
+    </section>
+
+    <section class="page about-page" id="page-about" data-page="about" hidden>
+      <div class="about-heading">
+        <button class="home-button" type="button" data-page-link="home" aria-label="Voltar à página inicial" title="Início">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1Z"/></svg>
+        </button>
+        <div><p class="eyebrow">RPRT HAWKS <span>/</span> LISTENER</p><h1>Sobre o projeto</h1></div>
+      </div>
+      <div class="about-layout">
+        <div class="about-text">
+          <section class="about-section" aria-labelledby="about-history-title">
+            <h2 id="about-history-title">História do projeto</h2>
+            <p class="about-copy">Nós, da equipe RPRT HAWKS #9459, desenvolvemos o Listener para mostrar que todos podem aprender lógica de programação. Nosso objetivo é tornar o pensamento computacional mais simples e acessível para crianças, jovens e adultos, porque compreender essa lógica é um passo importante para aprender e criar com tecnologia. Agora, com a versão online, damos continuidade a essa missão e ampliamos o alcance do projeto físico, permitindo que pessoas de diferentes lugares vivam a experiência. Queremos alcançar cada vez mais pessoas que possam explorar a lógica de programação e descobrir seu potencial, onde quer que estejam.</p>
+          </section>
+          <section class="about-section" aria-labelledby="about-goal-title">
+            <h2 id="about-goal-title">Objetivo educacional</h2>
+            <p class="about-copy">O jogo ensina fundamentos da lógica de programação de forma prática e progressiva. Por comandos de voz ou blocos, o participante aplica sequenciamento, repetição e condicionais para resolver desafios e observar o resultado de suas instruções no ambiente virtual.</p>
+          </section>
+        </div>
+        <figure class="about-figure">
+          <img src="listenerreal-removebg-preview.png" alt="Robô Listener físico, vermelho, com olhos retangulares, rodas brancas e a marca RPRT HAWKS 9459 na frente" loading="lazy">
+          <figcaption>Última versão do projeto físico — temporada 2025–2026</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="game-page" id="page-game" data-page="game" hidden aria-label="Desafio Listener">
+      <div class="game-topline">
+        <button class="game-back-button" type="button" id="returnToTrail">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6M9 12h12"/></svg>
+          <span>Voltar à trilha</span>
+        </button>
+        <div class="game-challenge-heading">
+          <p class="eyebrow" id="gameFoundationLabel">SEQUENCIAMENTO</p>
+          <h1 id="gameChallengeTitle">Desafio</h1>
+        </div>
+        <span class="game-step-count" id="gameChallengeCount"></span>
+      </div>
+      <p class="game-challenge-description" id="gameChallengeDescription"></p>
+      <div class="game-layout">
+        <div class="game-map-column">
+          <div class="game-map-frame">
+            <canvas id="gameMap" width="800" height="470" role="img" aria-label="Mapa urbano do desafio"></canvas>
+            <p class="sr-only" id="gameMapDescription" role="status" aria-live="polite" aria-atomic="true"></p>
+            <div class="game-map-legend" role="group" aria-label="Legenda do mapa">
+              <span><i class="legend-listener"></i> Listener</span>
+              <span><i class="legend-destination"></i> Destino</span>
+              <span><i class="legend-street"></i> Rua conectada</span>
+              <span><i class="legend-road-block"></i> Bloco de rua</span>
+              <span><i class="legend-obstacle"></i> Obstáculo</span>
+            </div>
+          </div>
+          <div class="game-feedback" id="gameFeedback" role="status" aria-live="polite">Monte uma sequência e execute o programa.</div>
+          <div class="game-run-controls">
+            <button class="game-run-button" id="gameRun" type="button">Executar programa</button>
+            <button class="game-stop-button" id="gameStop" type="button" disabled>Interromper</button>
+            <button class="game-reset-button" id="gameReset" type="button">Reiniciar desafio</button>
+          </div>
+          <section class="game-hints" aria-label="Dicas do desafio">
+            <button class="game-hint-button" id="requestHint" type="button">Ver dica 1 de 3</button>
+            <div class="hint-confirmation" id="hintConfirmation" role="group" aria-label="Confirmar uso de dica" hidden>
+              <p id="hintPenaltyWarning"></p>
+              <button type="button" id="confirmHint">Continuar e usar dica</button>
+              <button type="button" id="cancelHint">Agora não</button>
+            </div>
+            <p class="hint-content" id="hintContent" role="status" aria-live="polite" hidden></p>
+          </section>
+        </div>
+        <aside class="game-command-panel" aria-label="Painel de programação">
+          <div class="game-mode-switch" role="tablist" aria-label="Modo de programação">
+            <button type="button" id="blocksMode" role="tab" aria-selected="true">Blocos</button>
+            <button type="button" id="voiceMode" role="tab" aria-selected="false">Voz</button>
+          </div>
+          <div id="blocksControls">
+            <p class="command-help" id="blocksHelp">Avance pela rua conectada e vire para escolher outra. Prédios e barreiras bloqueiam o caminho.</p>
+            <div class="game-command-grid">
+              <button type="button" data-game-command="forward">Avançar</button>
+              <button type="button" data-game-command="turn90L">Virar à esquerda</button>
+              <button type="button" data-game-command="turn90R">Virar à direita</button>
+              <button type="button" data-game-command="repeat">Repetir ×2</button>
+              <button type="button" data-game-command="if">Se caminho à frente está livre?</button>
+            </div>
+          </div>
+          <div id="voiceControls" hidden>
+            <p class="command-help" id="voiceHelp">Toque no microfone e diga um comando.</p>
+            <ul class="voice-examples" id="voiceExamples" aria-label="Exemplos de comandos de voz"></ul>
+            <button class="game-mic-button" id="gameMic" type="button" aria-pressed="false">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3m-4 0h8"/></svg>
+              <span id="gameMicLabel">Iniciar escuta</span>
+            </button>
+            <p class="game-voice-status" id="gameVoiceStatus" data-state="waiting" aria-live="polite">Pronto para ouvir um comando.</p>
+            <p class="command-help voice-run-hint">Confira a sequência abaixo e toque em “Executar programa” quando estiver pronta.</p>
+          </div>
+          <ol class="game-program" id="gameProgram" aria-label="Programa atual"></ol>
+          <div class="game-program-actions">
+            <button type="button" id="clearProgram">Limpar sequência</button>
+          </div>
+        </aside>
+      </div>
+      <section class="game-completion" id="gameCompletion" hidden aria-live="polite">
+        <div class="completion-card">
+          <span class="completion-mark" aria-hidden="true">✓</span>
+          <p class="completion-eyebrow" id="completionEyebrow">DESAFIO CONCLUÍDO</p>
+          <h2 id="completionTitle">Desafio concluído!</h2>
+          <p id="completionMessage"></p>
+          <div class="completion-actions">
+            <button type="button" class="game-run-button" id="nextGameChallenge">Próximo desafio</button>
+            <button type="button" class="game-reset-button" id="completionBackToTrail">Voltar à trilha</button>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <section class="page completion-page" id="page-completion" data-page="completion" hidden aria-labelledby="experienceTitle">
+      <div class="experience-card">
+        <div id="congratulationsStep">
+          <p class="eyebrow">TRILHA CONCLUÍDA</p>
+          <h1 id="experienceTitle">Parabéns! Você concluiu todos os desafios do Listener!</h1>
+          <p>Você explorou sequências de comandos, repetições e decisões na programação.</p>
+          <p class="completion-score" id="finalScore"></p>
+          <button class="play-button" id="continueToFeedback" type="button">Continuar para avaliação</button>
+        </div>
+        <div id="experienceFeedbackStep" hidden>
+          <p class="eyebrow">SUA OPINIÃO</p>
+          <h1>Como foi sua experiência com o Listener?</h1>
+          <form id="experienceFeedbackForm">
+            <fieldset class="rating-fieldset">
+              <legend>Escolha uma opção</legend>
+              <div class="rating-options">
+                <label class="rating-option"><input type="radio" name="experienceRating" value="good"><span>Bom</span></label>
+                <label class="rating-option"><input type="radio" name="experienceRating" value="very-good"><span>Muito bom</span></label>
+                <label class="rating-option"><input type="radio" name="experienceRating" value="excellent"><span>Excelente</span></label>
+              </div>
+            </fieldset>
+            <label class="feedback-comment" for="experienceComment">
+              <span>O que você melhoraria no jogo?</span>
+              <textarea id="experienceComment" name="comment" maxlength="500" rows="3" placeholder="Escreva uma sugestão curta (opcional)."></textarea>
+              <small>Opcional · até 500 caracteres</small>
+            </label>
+            <p class="integration-note" id="feedbackIntegrationNote"></p>
+            <p class="feedback-status" id="feedbackStorageStatus" role="status" aria-live="polite"></p>
+            <div class="feedback-actions">
+              <button class="text-button" id="submitExperienceFeedback" type="submit">Enviar avaliação</button>
+              <button class="play-button" id="finishSession" type="button" disabled>Finalizar sessão</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script src="listener-engine.js?v=20261015-3"></script>
+  <script src="listener-missions.js?v=20261015-3"></script>
+  <script src="listener-voice.js?v=20261015-3"></script>
+  <script src="listener-learning.js?v=20261015-3"></script>
+  <script>window.LISTENER_CONFIG = window.LISTENER_CONFIG || { sessionEndpoint: 'https://script.google.com/macros/s/AKfycbwmQymLeZ74OMYbDy-9BZhi2lo98nV1ipFAgqT24yxswi2ekFPm_X0ugoToeFKAN1JQJA/exec' };</script>
+  <script src="listener-session-store.js?v=20261015-3"></script>
+  <script src="listener-game.js?v=20261015-3"></script>
+  <script src="listener.js?v=20261020-1"></script>
+  <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+</body>
+</html>

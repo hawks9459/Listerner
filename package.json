@@ -1,0 +1,12 @@
+{
+  "name": "listener-learning-environment",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Testes locais do ambiente de aprendizagem Listener",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "test": "node --test listener-engine.test.js listener-missions.test.js listener-voice.test.js listener-learning.test.js listener-session-store.test.js"
+  }
+}
