@@ -6,6 +6,7 @@
   const PROGRESS_KEY = 'listener:foundations:v2';
   const SETTINGS_KEY = 'listener:settings:v1';
   const PENDING_SUBMISSIONS_KEY = 'listener:pending-session-submissions:v1';
+  const FEEDBACK_FORM_URL = 'https://forms.cloud.microsoft/r/hy6jy2pK5J?origin=lprLink';
   const Learning = window.ListenerLearning;
   const SessionStore = window.ListenerSessionStore;
   const ACCESS_SOURCES = [
@@ -35,6 +36,9 @@
     assessment: null,
     pendingRegistration: null,
   };
+  document.querySelectorAll('[data-feedback-link]').forEach((link) => {
+    link.href = FEEDBACK_FORM_URL;
+  });
   state.completedChallenges = state.learning.completedChallenges;
   let splashTimer;
   let splashFinishTimer;
@@ -47,7 +51,7 @@
 
   function showPage(name) {
     if (name === 'completion' && !isTrackComplete()) return false;
-    if (isTrackComplete() && !['completion', 'game'].includes(name)) return false;
+    if (isTrackComplete() && !['completion', 'game', 'about', 'educator'].includes(name)) return false;
     const previousScreen = state.currentScreen;
     if (previousScreen === 'game' && name !== 'game' && window.ListenerGame?.getState().running) {
       const feedback = document.getElementById('gameFeedback');
@@ -1015,7 +1019,7 @@
   document.querySelectorAll('[data-page-link]').forEach((button) => {
     button.addEventListener('click', (event) => {
       event.preventDefault();
-      if (isTrackComplete() && button.dataset.pageLink !== 'game' && button.dataset.pageLink !== 'completion') return;
+      if (isTrackComplete() && !['game', 'completion', 'about', 'educator'].includes(button.dataset.pageLink)) return;
       if (state.session && button.dataset.pageLink === 'home') return;
       if (state.currentScreen === 'game' && button.dataset.pageLink !== 'game' &&
           window.ListenerGame?.getState().running) {

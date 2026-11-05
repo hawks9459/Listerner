@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#cb070b">
   <title>Listener | RPRT HAWKS #9459</title>
-  <link rel="stylesheet" href="listener.css?v=20261020-1">
+  <link rel="stylesheet" href="listener.css?v=20261105-2">
   <link rel="stylesheet" href="listener-game.css?v=20261015-3">
 </head>
 <body>
@@ -21,12 +21,14 @@
   <header class="site-header" id="siteHeader" hidden>
     <button class="navigation-menu-toggle" id="navigationMenuToggle" type="button" aria-label="Abrir menu" aria-controls="navigationDrawer" aria-expanded="false" hidden>
       <span></span><span></span><span></span>
+      <span class="notification-badge menu-toggle-badge" aria-hidden="true">1</span>
     </button>
     <a class="team-brand" href="#inicio" data-page-link="home" aria-label="Página inicial">
       <span class="team-logo"><img src="hawk-transparent.png" alt="Logo RPRT HAWKS"></span>
     </a>
     <nav class="header-actions" aria-label="Navegação principal">
       <button class="header-link" type="button" data-page-link="about">Sobre o projeto</button>
+      <button class="header-link" type="button" data-page-link="educator">Guia do Educador</button>
       <a class="team-site-link" href="https://hawks9459.github.io/Hawks9459-Site/" target="_blank" rel="noopener noreferrer">RPRT HAWKS #9459</a>
     </nav>
   </header>
@@ -40,6 +42,7 @@
       <button type="button" data-menu-page="trail">Trilha</button>
       <button type="button" data-menu-page="performance">Desempenho</button>
       <button type="button" data-menu-page="settings">Configurações</button>
+      <a class="navigation-feedback-link" data-feedback-link href="#" target="_blank" rel="noopener noreferrer">Feedback <span class="notification-badge" aria-hidden="true">1</span></a>
       <button type="button" data-menu-page="game" id="resumeMenuChallenge" hidden>Retomar desafio</button>
     </nav>
   </aside>
@@ -209,6 +212,169 @@
       </div>
     </section>
 
+    <section class="page educator-page" id="page-educator" data-page="educator" hidden aria-labelledby="educatorTitle">
+      <div class="about-heading">
+        <button class="home-button" type="button" data-page-link="home" aria-label="Voltar à página inicial" title="Início">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1Z"/></svg>
+        </button>
+        <div><p class="eyebrow">RPRT HAWKS <span>/</span> PRÁTICA PEDAGÓGICA</p><h1 id="educatorTitle">Guia do Educador</h1></div>
+      </div>
+      <p class="educator-intro">Um roteiro flexível para levar o pensamento computacional à sala de aula com o Listener.</p>
+
+      <div class="educator-content">
+        <section class="educator-section" aria-labelledby="educatorOverviewTitle">
+          <div class="educator-section-heading"><span>01</span><h2 id="educatorOverviewTitle">Visão geral e fundamentação</h2></div>
+          <div class="educator-card-grid educator-overview-grid">
+            <article class="educator-card">
+              <h3>O projeto</h3>
+              <p>O Listener é um jogo educativo digital desenvolvido pela equipe RPRT HAWKS #9459 para ensinar fundamentos da lógica de programação de forma prática e acessível. O participante orienta o robô pelo mapa com comandos de voz ou blocos e resolve desafios progressivos.</p>
+            </article>
+            <article class="educator-card">
+              <h3>Problema trabalhado</h3>
+              <p>A lógica pode parecer abstrata para iniciantes. O jogo transforma conceitos em situações visuais e interativas: planejar, executar, observar resultados e corrigir estratégias.</p>
+            </article>
+            <article class="educator-card educator-card-wide">
+              <h3>Objetivos de aprendizagem</h3>
+              <ul class="educator-list">
+                <li>Compreender a lógica de uma sequência e ordenar comandos.</li>
+                <li>Identificar padrões e utilizar repetições.</li>
+                <li>Compreender decisões condicionais.</li>
+                <li>Testar algoritmos, identificar erros e aprimorar soluções.</li>
+                <li>Desenvolver raciocínio lógico e colaboração.</li>
+              </ul>
+            </article>
+            <article class="educator-card educator-card-wide">
+              <h3>Alinhamento curricular</h3>
+              <p>Relaciona-se ao eixo <strong>Pensamento Computacional</strong> da BNCC Computação. A habilidade <strong>EF15CO02</strong> trata da construção e simulação de algoritmos com sequências, seleções condicionais e repetições, de forma independente ou colaborativa.</p>
+              <p class="educator-note">Correspondência direta do 1º ao 5º ano; a adaptação a outras etapas depende do currículo da rede.</p>
+            </article>
+            <article class="educator-card educator-audience-card">
+              <h3>Público e duração</h3>
+              <p><strong>A partir de 6 anos</strong></p>
+              <p>Estimativa de 2 a 3 aulas de 45 a 50 minutos, ajustável ao ritmo e às necessidades da turma.</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="educator-section" aria-labelledby="educatorPreparationTitle">
+          <div class="educator-section-heading"><span>02</span><h2 id="educatorPreparationTitle">Preparação e logística</h2></div>
+          <div class="educator-card-grid">
+            <article class="educator-card">
+              <h3>Recursos digitais</h3>
+              <ul class="educator-list">
+                <li>Computador, tablet ou dispositivo compatível.</li>
+                <li>Acesso à internet e navegador atualizado.</li>
+                <li>Microfone e fones opcionais para comandos de voz.</li>
+                <li>Projetor ou televisão para demonstração, se disponível.</li>
+              </ul>
+            </article>
+            <article class="educator-card">
+              <h3>Recursos físicos</h3>
+              <ul class="educator-list">
+                <li>Papel e lápis para planejar sequências.</li>
+                <li>Cartões com comandos para atividade complementar.</li>
+              </ul>
+              <p class="educator-note">O robô físico não é necessário para usar a versão online.</p>
+            </article>
+            <article class="educator-card">
+              <h3>Organização do espaço</h3>
+              <p>Forme duplas ou pequenos grupos de até três participantes. Garanta acesso ao jogo e espaço para conversar e compartilhar estratégias.</p>
+            </article>
+            <article class="educator-card">
+              <h3>Sugestão de tempo</h3>
+              <ol class="educator-list educator-timeline">
+                <li><strong>Aula 1:</strong> pensamento computacional e sequenciamento.</li>
+                <li><strong>Aula 2:</strong> repetição, padrões e otimização de comandos.</li>
+                <li><strong>Aula 3:</strong> condicionais, desafios e reflexão final.</li>
+              </ol>
+              <p class="educator-note">Distribuição estimada; ajuste conforme a turma.</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="educator-section" aria-labelledby="educatorDevelopmentTitle">
+          <div class="educator-section-heading"><span>03</span><h2 id="educatorDevelopmentTitle">Passo a passo do desenvolvimento</h2></div>
+          <article class="educator-card educator-sensitization">
+            <h3>Etapa inicial · Sensibilização</h3>
+            <p class="educator-question">“Como podemos ensinar o Listener a chegar ao seu destino seguindo instruções corretas?”</p>
+            <p>Apresente o problema e convide os alunos a pensar e planejar antes de executar os comandos.</p>
+          </article>
+          <div class="educator-card-grid educator-stage-grid">
+            <article class="educator-card educator-stage-card">
+              <h3>Sequenciamento</h3>
+              <p><strong>Professor:</strong> explique como a ordem dos comandos influencia o resultado.</p>
+              <p><strong>Aluno:</strong> organize movimentos e giros para chegar ao destino.</p>
+              <p class="educator-question">“O que precisa acontecer primeiro? E depois?”</p>
+            </article>
+            <article class="educator-card educator-stage-card">
+              <h3>Repetição</h3>
+              <p><strong>Professor:</strong> incentive a identificação de ações recorrentes.</p>
+              <p><strong>Aluno:</strong> reconheça padrões e experimente o bloco Repita.</p>
+              <p class="educator-question">“Existe algum comando que estamos repetindo várias vezes?”</p>
+            </article>
+            <article class="educator-card educator-stage-card">
+              <h3>Condicionais</h3>
+              <p><strong>Professor:</strong> apresente caminhos livres e bloqueados.</p>
+              <p><strong>Aluno:</strong> use decisões condicionais para escolher como continuar.</p>
+              <p class="educator-question">“Como o Listener pode decidir o que fazer dependendo do caminho?”</p>
+            </article>
+          </div>
+          <article class="educator-card educator-teamwork">
+            <h3>Trabalho em equipe</h3>
+            <p>Organize grupos de duas ou três pessoas e faça rodízio entre os desafios:</p>
+            <ul class="educator-role-list">
+              <li><strong>Planejador</strong><span>Pensa na estratégia.</span></li>
+              <li><strong>Programador</strong><span>Organiza os comandos.</span></li>
+              <li><strong>Observador</strong><span>Acompanha a execução e identifica ajustes.</span></li>
+            </ul>
+            <p class="educator-note">A troca de funções ajuda todos a participar.</p>
+          </article>
+        </section>
+
+        <section class="educator-section" aria-labelledby="educatorAssessmentTitle">
+          <div class="educator-section-heading"><span>04</span><h2 id="educatorAssessmentTitle">Avaliação e fechamento</h2></div>
+          <article class="educator-card">
+            <h3>Rubrica de aprendizagem</h3>
+            <div class="educator-rubric-scroll" role="region" aria-label="Rubrica de aprendizagem; role para consultar todos os níveis" tabindex="0">
+              <table class="educator-rubric">
+                <thead><tr><th scope="col">Aspecto</th><th scope="col">Iniciando</th><th scope="col">Em desenvolvimento</th><th scope="col">Adequado</th><th scope="col">Avançado</th></tr></thead>
+                <tbody>
+                  <tr><th scope="row">Sequências</th><td>Ordena comandos com apoio passo a passo.</td><td>Ordena parte e corrige com pistas.</td><td>Ordena comandos e antecipa o resultado.</td><td>Explica e ajusta a sequência com autonomia.</td></tr>
+                  <tr><th scope="row">Repetições</th><td>Reconhece repetições com exemplos.</td><td>Identifica padrões com orientação.</td><td>Aplica Repita a padrões observados.</td><td>Justifica e otimiza repetições.</td></tr>
+                  <tr><th scope="row">Condicionais</th><td>Percebe caminhos livres ou bloqueados com ajuda.</td><td>Escolhe uma condição após uma pista.</td><td>Usa a condição adequada à situação.</td><td>Explica e adapta decisões a diferentes caminhos.</td></tr>
+                  <tr><th scope="row">Testes e colaboração</th><td>Testa ou participa quando orientado.</td><td>Identifica erros com apoio e contribui no grupo.</td><td>Testa, corrige e compartilha sua estratégia.</td><td>Depura com autonomia e apoia a colaboração.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+          <div class="educator-card-grid educator-closing-grid">
+            <article class="educator-card">
+              <h3>Avaliação formativa</h3>
+              <ul class="educator-list">
+                <li>Observe a participação durante os desafios.</li>
+                <li>Faça perguntas orais para verificar a compreensão.</li>
+                <li>Peça registros breves das estratégias usadas.</li>
+                <li>Inclua autoavaliação e troca de feedback entre colegas.</li>
+              </ul>
+            </article>
+            <article class="educator-card">
+              <h3>Produto final e socialização</h3>
+              <p>Espera-se que cada aluno construa e explique um algoritmo funcional, mostrando como usou sequenciamento, repetição ou condicionais.</p>
+              <p>Convide a turma a apresentar estratégias aos colegas, ao professor ou à comunidade escolar.</p>
+            </article>
+          </div>
+          <article class="educator-card educator-feedback-card">
+            <div>
+              <p class="eyebrow">SUA EXPERIÊNCIA EM SALA</p>
+              <h3>Feedback do Educador</h3>
+              <p>Este espaço será usado para compartilhar experiências, sugestões e avaliações sobre a aplicação do Listener em sala de aula.</p>
+            </div>
+            <a class="educator-coming-soon" href="https://forms.cloud.microsoft/r/xp4EFW3sQ0?origin=lprLink" target="_blank" rel="noopener noreferrer">Abrir formulário para educadores</a>
+          </article>
+        </section>
+      </div>
+    </section>
+
     <section class="game-page" id="page-game" data-page="game" hidden aria-label="Desafio Listener">
       <div class="game-topline">
         <button class="game-back-button" type="button" id="returnToTrail">
@@ -303,11 +469,15 @@
           <h1 id="experienceTitle">Parabéns! Você concluiu todos os desafios do Listener!</h1>
           <p>Você explorou sequências de comandos, repetições e decisões na programação.</p>
           <p class="completion-score" id="finalScore"></p>
-          <button class="play-button" id="continueToFeedback" type="button">Continuar para avaliação</button>
+          <div class="completion-feedback-actions">
+            <button class="play-button" id="continueToFeedback" type="button">Responder avaliação rápida</button>
+            <a class="external-feedback-button" data-feedback-link href="#" target="_blank" rel="noopener noreferrer">Abrir formulário de feedback</a>
+          </div>
         </div>
         <div id="experienceFeedbackStep" hidden>
-          <p class="eyebrow">SUA OPINIÃO</p>
+          <p class="eyebrow">AVALIAÇÃO RÁPIDA</p>
           <h1>Como foi sua experiência com o Listener?</h1>
+          <p class="quick-assessment-note">Esta avaliação rápida interna registra sua experiência de jogo. Para enviar sugestões à equipe, use o formulário externo.</p>
           <form id="experienceFeedbackForm">
             <fieldset class="rating-fieldset">
               <legend>Escolha uma opção</legend>
@@ -327,6 +497,7 @@
             <div class="feedback-actions">
               <button class="text-button" id="submitExperienceFeedback" type="submit">Enviar avaliação</button>
               <button class="play-button" id="finishSession" type="button" disabled>Finalizar sessão</button>
+              <a class="external-feedback-button" data-feedback-link href="#" target="_blank" rel="noopener noreferrer">Abrir formulário de feedback</a>
             </div>
           </form>
         </div>
@@ -340,7 +511,7 @@
   <script>window.LISTENER_CONFIG = window.LISTENER_CONFIG || { sessionEndpoint: 'https://script.google.com/macros/s/AKfycbwmQymLeZ74OMYbDy-9BZhi2lo98nV1ipFAgqT24yxswi2ekFPm_X0ugoToeFKAN1JQJA/exec' };</script>
   <script src="listener-session-store.js?v=20261015-3"></script>
   <script src="listener-game.js?v=20261015-3"></script>
-  <script src="listener.js?v=20261020-1"></script>
+  <script src="listener.js?v=20261105-3"></script>
   <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
 </body>
 </html>
