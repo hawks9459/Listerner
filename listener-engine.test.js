@@ -174,6 +174,29 @@ test('avanço longo respeita o limite de instruções durante a validação', ()
   }).valid, false);
 });
 
+test('repetição executa as quantidades 1, 2, 5 e 10 e rejeita valores fora do limite', async () => {
+  for (const times of [1, 2, 5, 10]) {
+    const mission = createMissionState({
+      grid: [Array.from({ length: times + 1 }, () => '.')],
+      start: { x: 0, y: 0, dir: 90 },
+      target: { x: times, y: 0 }
+    });
+    const result = await executeSequence(mission, [
+      { type: 'repeat', times, children: [{ type: 'forward' }] }
+    ], { permissions: { allowRepeat: true } });
+    assert.equal(result.result, 'complete', `repetições configuradas: ${times}`);
+    assert.equal(result.trace.filter((event) => event.kind === 'command').length, times);
+  }
+
+  for (const times of [0, 11]) {
+    const result = validateSequence([
+      { type: 'repeat', times, children: [{ type: 'forward' }] }
+    ], 40, { allowRepeat: true });
+    assert.equal(result.valid, false, `quantidade inválida: ${times}`);
+    assert.match(result.reason, /entre 1 e 10/i);
+  }
+});
+
 test('motor executa repetição, condição, giro e chegada sem depender de pixels', async () => {
   const mission = createMissionState({
     grid: [

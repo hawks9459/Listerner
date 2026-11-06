@@ -50,21 +50,19 @@ const solutions = {
   ],
   'conditionals-2': [
     { type: 'if', condition: 'pathClear', then: [{ type: 'forward' }], else: [{ type: 'turn90L' }] },
-    { type: 'forward' },
-    { type: 'forward' },
-    { type: 'turn90R' },
     { type: 'if', condition: 'pathClear', then: [{ type: 'forward' }], else: [{ type: 'turn90R' }] },
-    { type: 'repeat', times: 4, children: [{ type: 'forward' }] },
-    { type: 'turn90L' },
-    { type: 'repeat', times: 3, children: [{ type: 'forward' }] },
-    { type: 'turn90L' },
-    { type: 'repeat', times: 3, children: [{ type: 'forward' }] }
+    { type: 'if', condition: 'pathClear', then: [{ type: 'forward' }], else: [{ type: 'turn90R' }] },
+    { type: 'if', condition: 'pathClear', then: [{ type: 'forward' }], else: [{ type: 'turn90L' }] },
+    { type: 'if', condition: 'pathClear', then: [{ type: 'forward' }], else: [{ type: 'turn90L' }] },
+    { type: 'if', condition: 'pathClear', then: [{ type: 'forward' }], else: [{ type: 'turn90R' }] },
+    { type: 'turn90R' },
+    { type: 'forward' }
   ]
 };
 
 function permissionsFor(challenge) {
   return {
-    allowRepeat: challenge.foundation !== 'sequencing',
+    allowRepeat: challenge.foundation === 'repetition',
     allowConditionals: challenge.foundation === 'conditionals'
   };
 }
@@ -121,8 +119,8 @@ test('cada desafio define objetivo, cenário, orientação, comandos, condiçõe
     assert.equal(challenge.scenario.obstaclePositions, challenge.obstacles);
     assert.ok([0, 90, 180, 270].includes(challenge.start.dir));
     assert.ok(challenge.allowedCommands.includes('forward'));
-    assert.ok(challenge.allowedCommands.includes('repeat'));
-    assert.ok(challenge.allowedCommands.includes('if'));
+    assert.equal(challenge.allowedCommands.includes('repeat'), challenge.foundation === 'repetition');
+    assert.equal(challenge.allowedCommands.includes('if'), challenge.foundation === 'conditionals');
     assert.equal(challenge.completionCriteria.type, 'exact-destination');
     assert.equal(challenge.completionCriteria.destinationId, challenge.destinationId);
     assert.equal(challenge.completionCriteria.requiredStructure, challenge.foundation === 'sequencing' ? 'sequence'
@@ -245,15 +243,10 @@ test('condicionais avançado reutiliza pathClear em posições com resultados di
   const outcome = await execute('conditionals-2', solutions['conditionals-2']);
   assert.equal(outcome.result.result, 'complete');
   assert.equal(outcome.pedagogy.valid, true);
-  assert.deepEqual(outcome.result.trace.filter((event) => event.kind === 'condition').filter((event) =>
-    event.at.x === 0 && event.at.y === 2 ||
-    event.at.x === 3 && event.at.y === 2 ||
-    event.at.x === 3 && event.at.y === 0
-  ).map((event) => ({ at: event.at, value: event.value })), [
-    { at: { x: 0, y: 2 }, value: true },
-    { at: { x: 3, y: 2 }, value: false },
-    { at: { x: 3, y: 0 }, value: false }
-  ]);
+  const decisions = outcome.result.trace.filter((event) => event.kind === 'condition');
+  assert.ok(decisions.some((event) => event.at.x === 0 && event.at.y === 2 && event.value));
+  assert.ok(decisions.some((event) => event.at.x === 3 && event.at.y === 2 && !event.value));
+  assert.ok(decisions.some((event) => event.at.x === 3 && event.at.y === 0 && !event.value));
 });
 
 test('sequenciamento rejeita uma ordem de comandos que não completa o percurso', async () => {
@@ -326,7 +319,7 @@ test('condicionais rejeita uma decisão que não contribui para o desvio', async
   assert.equal(outcome.pedagogy.valid, false);
 });
 
-test('condicionais aceita repetição aninhada dentro do ramo avaliado', async () => {
+test('condicionais não disponibiliza nem executa o bloco de repetição', async () => {
   const outcome = await execute('conditionals-1', [
     {
       type: 'if', condition: 'pathClear',
@@ -335,8 +328,8 @@ test('condicionais aceita repetição aninhada dentro do ramo avaliado', async (
     },
     { type: 'forward' }
   ]);
-  assert.equal(outcome.result.result, 'complete');
-  assert.equal(outcome.pedagogy.valid, true);
+  assert.equal(outcome.result.result, 'invalid');
+  assert.match(outcome.result.reason, /repita ainda não foi liberado/i);
 });
 
 test('sequenciamento rejeita condições ainda não liberadas mesmo em caminho alternativo', async () => {
@@ -376,7 +369,9 @@ test('condicionais aceita rota e posições de decisão diferentes da solução 
       then: [{ type: 'forward' }],
       else: [{ type: 'turn90R' }]
     },
-    { type: 'repeat', times: 3, children: [{ type: 'forward' }] },
+    { type: 'forward' },
+    { type: 'forward' },
+    { type: 'forward' },
     { type: 'turn90R' },
     { type: 'forward' }
   ]);

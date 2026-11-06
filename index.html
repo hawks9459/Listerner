@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#cb070b">
   <title>Listener | RPRT HAWKS #9459</title>
-  <link rel="stylesheet" href="listener.css?v=20261105-2">
-  <link rel="stylesheet" href="listener-game.css?v=20261015-3">
+  <link rel="stylesheet" href="listener.css?v=20261105-4">
+  <link rel="stylesheet" href="listener-game.css?v=20261105-4">
 </head>
 <body>
   <div class="splash" id="splash" aria-label="RPRT HAWKS, equipe 9459">
@@ -44,8 +44,20 @@
       <button type="button" data-menu-page="settings">Configurações</button>
       <a class="navigation-feedback-link" data-feedback-link href="#" target="_blank" rel="noopener noreferrer">Feedback <span class="notification-badge" aria-hidden="true">1</span></a>
       <button type="button" data-menu-page="game" id="resumeMenuChallenge" hidden>Retomar desafio</button>
+      <button type="button" id="restartTrailButton" hidden>Reiniciar trilha</button>
     </nav>
   </aside>
+  <dialog class="restart-dialog" id="restartConfirmation" aria-labelledby="restartConfirmationTitle" aria-describedby="restartConfirmationMessage">
+    <div class="restart-dialog-card">
+      <p class="eyebrow">REINICIAR TRILHA</p>
+      <h2 id="restartConfirmationTitle">Deseja recomeçar?</h2>
+      <p id="restartConfirmationMessage">Todo o progresso atual dos desafios será perdido. Esta ação não pode ser desfeita.</p>
+      <div class="restart-dialog-actions">
+        <button class="game-reset-button" id="cancelRestart" type="button">Cancelar</button>
+        <button class="play-button" id="confirmRestart" type="button">Sim, reiniciar</button>
+      </div>
+    </div>
+  </dialog>
 
   <main>
     <section class="page home-page" id="page-home" data-page="home" hidden>
@@ -61,7 +73,6 @@
             <span>Jogar</span>
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
           </button>
-          <p class="pending-submission-notice" id="pendingSubmissionNotice" role="status" aria-live="polite" hidden></p>
           <p class="home-footnote">Uma ideia, uma sequência de comandos, um novo caminho.</p>
         </div>
       </div>
@@ -102,7 +113,7 @@
         <p class="form-notice" id="formNotice" role="status" aria-live="polite"></p>
         <button class="play-button form-submit" type="submit"><span>Ver a trilha</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button>
       </form>
-      <p class="privacy-note">Com o serviço configurado, os dados iniciais são enviados para registrar a sessão. Sem ele, ficam na memória até o envio final; se o envio não estiver disponível, os dados pendentes são preservados neste dispositivo até nova tentativa.</p>
+      <p class="privacy-note">As informações ajudam a preparar sua sessão. Você pode jogar normalmente mesmo se o registro externo estiver indisponível.</p>
     </section>
 
     <section class="page trail-page" id="page-trail" data-page="trail" hidden>
@@ -464,54 +475,29 @@
 
     <section class="page completion-page" id="page-completion" data-page="completion" hidden aria-labelledby="experienceTitle">
       <div class="experience-card">
-        <div id="congratulationsStep">
-          <p class="eyebrow">TRILHA CONCLUÍDA</p>
-          <h1 id="experienceTitle">Parabéns! Você concluiu todos os desafios do Listener!</h1>
-          <p>Você explorou sequências de comandos, repetições e decisões na programação.</p>
-          <p class="completion-score" id="finalScore"></p>
-          <div class="completion-feedback-actions">
-            <button class="play-button" id="continueToFeedback" type="button">Responder avaliação rápida</button>
-            <a class="external-feedback-button" data-feedback-link href="#" target="_blank" rel="noopener noreferrer">Abrir formulário de feedback</a>
-          </div>
-        </div>
-        <div id="experienceFeedbackStep" hidden>
-          <p class="eyebrow">AVALIAÇÃO RÁPIDA</p>
-          <h1>Como foi sua experiência com o Listener?</h1>
-          <p class="quick-assessment-note">Esta avaliação rápida interna registra sua experiência de jogo. Para enviar sugestões à equipe, use o formulário externo.</p>
-          <form id="experienceFeedbackForm">
-            <fieldset class="rating-fieldset">
-              <legend>Escolha uma opção</legend>
-              <div class="rating-options">
-                <label class="rating-option"><input type="radio" name="experienceRating" value="good"><span>Bom</span></label>
-                <label class="rating-option"><input type="radio" name="experienceRating" value="very-good"><span>Muito bom</span></label>
-                <label class="rating-option"><input type="radio" name="experienceRating" value="excellent"><span>Excelente</span></label>
-              </div>
-            </fieldset>
-            <label class="feedback-comment" for="experienceComment">
-              <span>O que você melhoraria no jogo?</span>
-              <textarea id="experienceComment" name="comment" maxlength="500" rows="3" placeholder="Escreva uma sugestão curta (opcional)."></textarea>
-              <small>Opcional · até 500 caracteres</small>
-            </label>
-            <p class="integration-note" id="feedbackIntegrationNote"></p>
-            <p class="feedback-status" id="feedbackStorageStatus" role="status" aria-live="polite"></p>
-            <div class="feedback-actions">
-              <button class="text-button" id="submitExperienceFeedback" type="submit">Enviar avaliação</button>
-              <button class="play-button" id="finishSession" type="button" disabled>Finalizar sessão</button>
-              <a class="external-feedback-button" data-feedback-link href="#" target="_blank" rel="noopener noreferrer">Abrir formulário de feedback</a>
-            </div>
-          </form>
+        <p class="eyebrow">TRILHA CONCLUÍDA</p>
+        <h1 id="experienceTitle">Parabéns! Você concluiu a trilha do Listener!</h1>
+        <p>Você explorou sequências de comandos, repetições e decisões na programação.</p>
+        <div class="completion-options" aria-label="Opções após concluir a trilha">
+          <a class="play-button completion-option-button" data-feedback-link href="#" target="_blank" rel="noopener noreferrer">Feedback</a>
+          <a class="completion-share" href="https://hawks9459.github.io/Listerner/" target="_blank" rel="noopener noreferrer">
+            <span>Compartilhar o jogo</span>
+            <img src="share-listener-qr.png" alt="QR Code para abrir o Listener em https://hawks9459.github.io/Listerner/" width="180" height="180">
+            <small>Aponte a câmera de outro dispositivo para o código.</small>
+          </a>
+          <button class="play-button completion-option-button" id="restartGameButton" type="button">Reiniciar jogo</button>
         </div>
       </div>
     </section>
   </main>
   <script src="listener-engine.js?v=20261015-3"></script>
-  <script src="listener-missions.js?v=20261015-3"></script>
+  <script src="listener-missions.js?v=20261105-4"></script>
   <script src="listener-voice.js?v=20261015-3"></script>
   <script src="listener-learning.js?v=20261015-3"></script>
   <script>window.LISTENER_CONFIG = window.LISTENER_CONFIG || { sessionEndpoint: 'https://script.google.com/macros/s/AKfycbwmQymLeZ74OMYbDy-9BZhi2lo98nV1ipFAgqT24yxswi2ekFPm_X0ugoToeFKAN1JQJA/exec' };</script>
   <script src="listener-session-store.js?v=20261015-3"></script>
-  <script src="listener-game.js?v=20261015-3"></script>
-  <script src="listener.js?v=20261105-3"></script>
+  <script src="listener-game.js?v=20261105-6"></script>
+  <script src="listener.js?v=20261105-5"></script>
   <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
 </body>
 </html>

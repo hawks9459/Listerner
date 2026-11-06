@@ -32,16 +32,18 @@ test('trilha só é considerada concluída com exatamente os seis desafios váli
   assert.equal(Store.trackIsComplete(progress, challengeIds.slice(0, 5)), false);
 });
 
-test('questionário final contém somente as três avaliações previstas e campo livre opcional', () => {
-  const options = [...page.matchAll(/name="experienceRating" value="([^"]+)"><span>([^<]+)<\/span>/g)];
-  assert.deepEqual(options.map(([, value, label]) => [value, label]), [
-    ['good', 'Bom'],
-    ['very-good', 'Muito bom'],
-    ['excellent', 'Excelente']
-  ]);
-  assert.match(page, /id="experienceComment" name="comment" maxlength="500"/);
-  assert.match(page, /id="finishSession" type="button" disabled>Finalizar sessão/);
-  assert.equal(page.includes('Ruim'), false);
+test('formulário inicial continua disponível e a conclusão não solicita avaliação', () => {
+  assert.match(page, /id="playerForm"/);
+  assert.match(page, /id="playerName"/);
+  assert.match(page, /id="playerAge"/);
+  assert.match(page, /id="accessSource"/);
+  assert.match(page, /id="experienceTitle"/);
+  assert.match(page, /id="restartGameButton"[^>]*>Reiniciar jogo/);
+  assert.match(page, /data-feedback-link href="#" target="_blank"/);
+  assert.match(page, /href="https:\/\/hawks9459\.github\.io\/Listerner\/" target="_blank"/);
+  assert.match(page, /src="share-listener-qr\.png" alt="QR Code para abrir o Listener em https:\/\/hawks9459\.github\.io\/Listerner\/"/);
+  assert.doesNotMatch(page, /experienceRating|experienceComment|experienceFeedbackForm|continueToFeedback|finishSession/);
+  assert.doesNotMatch(page, /Responder avaliação/);
 });
 
 test('sem endpoint configurado, nenhum sucesso de armazenamento é simulado', async () => {

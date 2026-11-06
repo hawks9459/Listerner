@@ -183,6 +183,9 @@
 .program-open-indicator { flex: 1 1 100%; color: #f0ce73; font-size: .78rem; }
 .game-program-item button { width: auto; max-width: 100%; min-height: 44px; padding: 7px 9px; border: 0; border-radius: 3px; background: #2c2c2c; color: #ddd; font: inherit; font-size: .82rem; white-space: normal; overflow-wrap: anywhere; cursor: pointer; }
 .game-program-item button:disabled { opacity: .55; cursor: not-allowed; }
+.game-program-item .program-repeat-quantity { color: #f0ce73; font-size: .82rem; font-weight: 700; }
+.game-program-item .program-repeat-button { min-width: 44px; font-size: 1rem; font-weight: 700; }
+.game-program-item .program-repeat-button:disabled { opacity: .45; cursor: not-allowed; }
 .program-nested, .conditional-branch { min-width: 0; margin-left: 8px; padding: 8px; border-left: 2px solid rgba(255,255,255,.17); background: rgba(0,0,0,.18); overflow-wrap: anywhere; }
 .program-nested h4, .conditional-branch h4 { margin: 0 0 6px; color: #d5d1ce; font-size: .76rem; letter-spacing: .035em; }
 .conditional-branches { display: grid; gap: 7px; }

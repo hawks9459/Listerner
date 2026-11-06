@@ -5,7 +5,6 @@
   const pages = [...document.querySelectorAll('[data-page]')];
   const PROGRESS_KEY = 'listener:foundations:v2';
   const SETTINGS_KEY = 'listener:settings:v1';
-  const PENDING_SUBMISSIONS_KEY = 'listener:pending-session-submissions:v1';
   const FEEDBACK_FORM_URL = 'https://forms.cloud.microsoft/r/hy6jy2pK5J?origin=lprLink';
   const Learning = window.ListenerLearning;
   const SessionStore = window.ListenerSessionStore;
@@ -33,7 +32,6 @@
     currentScreen: 'home',
     currentFoundation: null,
     currentChallengeId: null,
-    assessment: null,
     pendingRegistration: null,
   };
   document.querySelectorAll('[data-feedback-link]').forEach((link) => {
@@ -51,13 +49,17 @@
 
   function showPage(name) {
     if (name === 'completion' && !isTrackComplete()) return false;
-    if (isTrackComplete() && !['completion', 'game', 'about', 'educator'].includes(name)) return false;
+    if (isTrackComplete() && !['home', 'completion', 'game', 'about', 'educator'].includes(name)) return false;
     const previousScreen = state.currentScreen;
     if (previousScreen === 'game' && name !== 'game' && window.ListenerGame?.getState().running) {
-      const feedback = document.getElementById('gameFeedback');
-      feedback.textContent = 'Interrompa a execução antes de sair do desafio; o mapa permanece visível enquanto o Listener se move.';
-      feedback.dataset.state = 'invalid';
-      return false;
+      if (name === 'home') {
+        window.ListenerGame.stopProgram();
+      } else {
+        const feedback = document.getElementById('gameFeedback');
+        feedback.textContent = 'Interrompa a execução antes de sair do desafio; o mapa permanece visível enquanto o Listener se move.';
+        feedback.dataset.state = 'invalid';
+        return false;
+      }
     }
     pages.forEach((page) => { page.hidden = page.dataset.page !== name; });
     state.currentScreen = name;
@@ -101,83 +103,6 @@
     } catch (_) {
       return false;
     }
-  }
-
-  function readPendingSubmissions() {
-    try {
-      const saved = JSON.parse(localStorage.getItem(PENDING_SUBMISSIONS_KEY) || '[]');
-      return Array.isArray(saved) ? saved.filter((item) => item && item.session?.id && item.completion) : [];
-    } catch (_) {
-      updatePendingNotice('Não foi possível ler os envios pendentes deste dispositivo. Não limpe os dados do navegador; procure a equipe responsável.');
-      return null;
-    }
-  }
-
-  function updatePendingNotice(message) {
-    const notice = document.getElementById('pendingSubmissionNotice');
-    if (!notice) return;
-    notice.textContent = message || '';
-    notice.hidden = !message;
-  }
-
-  function savePendingSubmissions(items) {
-    try {
-      localStorage.setItem(PENDING_SUBMISSIONS_KEY, JSON.stringify(items));
-      return true;
-    } catch (_) {
-      return false;
-    }
-  }
-
-  function removePendingSubmission(sessionId) {
-    const current = readPendingSubmissions();
-    if (!current) return false;
-    const pending = current.filter((item) => item.session.id !== sessionId);
-    return savePendingSubmissions(pending);
-  }
-
-  async function sendPendingSubmission(item) {
-    if (!item.registered) {
-      await SessionStore.registerSession(item.session);
-      item.registered = true;
-      const current = readPendingSubmissions();
-      if (!current) throw new Error('Não foi possível ler a fila local de avaliações pendentes.');
-      const pending = current.filter((entry) => entry.session.id !== item.session.id);
-      pending.push(item);
-      if (!savePendingSubmissions(pending)) {
-        throw new Error('A sessão foi registrada, mas não foi possível preservar a tentativa de avaliação. Tente novamente.');
-      }
-    }
-    await SessionStore.completeSession(item.session, item.completion);
-    const current = readPendingSubmissions();
-    if (!current) throw new Error('Não foi possível ler a fila local de avaliações pendentes.');
-    const remaining = current.filter((entry) => entry.session.id !== item.session.id);
-    if (!savePendingSubmissions(remaining)) {
-      throw new Error('O serviço confirmou a avaliação, mas não foi possível atualizar a fila local de envios.');
-    }
-  }
-
-  async function flushPendingSubmissions() {
-    const pending = readPendingSubmissions();
-    if (!pending) return;
-    if (!SessionStore.endpoint()) {
-      updatePendingNotice(pending.length
-        ? `${pending.length} avaliação(ões) ainda não enviada(s). Configure o serviço de armazenamento para tentar o envio; os dados permanecem neste dispositivo.`
-        : '');
-      return;
-    }
-    let failure = null;
-    for (const item of pending) {
-      try {
-        await sendPendingSubmission(item);
-      } catch (error) {
-        failure = error;
-      }
-    }
-    const remaining = readPendingSubmissions();
-    updatePendingNotice(remaining?.length
-      ? `Não foi possível enviar ${remaining.length} avaliação(ões) pendente(s): ${failure?.message || 'o serviço não confirmou a gravação'}. Os dados permanecem neste dispositivo.`
-      : '');
   }
 
   function loadSettings() {
@@ -290,6 +215,7 @@
     document.getElementById('resumeMenuChallenge').hidden = !hasActiveChallenge;
     document.getElementById('resumeTrailChallenge').hidden = !hasActiveChallenge;
     document.getElementById('resumePerformanceChallenge').hidden = !hasActiveChallenge;
+    document.getElementById('restartTrailButton').hidden = !state.session;
   }
 
   function setMenuOpen(open) {
@@ -445,7 +371,7 @@
     return Object.freeze({
       challengeId,
       foundation: FOUNDATIONS[index].key,
-      allowRepeat: index >= 1,
+      allowRepeat: index === 1,
       allowConditionals: index >= 2,
     });
   }
@@ -502,11 +428,11 @@
     document.getElementById('trailStatus').textContent = allComplete
       ? 'Trilha concluída.'
       : 'Conclua os desafios em ordem para liberar o próximo fundamento.';
+    renderNavigation();
     const resumeButton = document.getElementById('resumeTrailChallenge');
-    if (!resumeButton.hidden) {
+    if (!resumeButton.hidden && state.currentChallengeId) {
       resumeButton.textContent = `Retomar: ${window.ListenerMissions.CHALLENGES[state.currentChallengeId].title}`;
     }
-    renderNavigation();
   }
 
   function clearErrors() {
@@ -555,29 +481,14 @@
       age: result.age,
       access: { source: values.accessSource, detail: values.accessSource === 'other' ? String(values.accessDetail).trim() : '' },
     };
-    const previousLearning = SessionStore.trackIsComplete(state.completedChallenges, CHALLENGE_IDS)
-      ? state.learning
-      : null;
-    if (previousLearning) {
+    if (SessionStore.trackIsComplete(state.completedChallenges, CHALLENGE_IDS)) {
       state.learning = Learning.createState(CHALLENGE_IDS);
       state.completedChallenges = state.learning.completedChallenges;
-      if (!saveProgress()) {
-        state.learning = previousLearning;
-        state.completedChallenges = previousLearning.completedChallenges;
-        document.getElementById('formNotice').textContent =
-          'Não foi possível iniciar uma nova trilha sem misturar o progresso concluído anteriormente. Confira o armazenamento do navegador e tente novamente.';
-        return;
-      }
-    }
-    if (!state.pendingRegistration || JSON.stringify(state.pendingRegistration.player) !== JSON.stringify(participant)) {
-      state.pendingRegistration = {
-        id: SessionStore.createSessionId(),
-        startedAt: new Date().toISOString(),
-        player: participant
-      };
+      if (!saveProgress()) console.warn('A nova trilha foi iniciada, mas não foi possível salvar o progresso inicial neste navegador.');
     }
     const session = {
-      ...state.pendingRegistration,
+      id: SessionStore.createSessionId(),
+      startedAt: new Date().toISOString(),
       player: participant,
       profile: getProfile(result.age),
       registered: false
@@ -585,40 +496,19 @@
     const submitButton = playerForm.querySelector('[type="submit"]');
     questionnaireSubmitting = true;
     submitButton.disabled = true;
-    document.getElementById('formNotice').textContent = 'Preparando sua sessão…';
-    Promise.resolve(SessionStore.endpoint() ? SessionStore.registerSession(session) : { configured: false, confirmed: false })
-      .then((registration) => {
-        session.registered = Boolean(registration?.confirmed);
-        state.session = session;
-        state.assessment = null;
-        state.pendingRegistration = null;
-        clearErrors();
-        renderTrail();
-        showPage('trail');
-        const trailNotices = [];
-        if (previousLearning) {
-          trailNotices.push('A trilha anterior já concluída foi reiniciada para começar esta sessão do zero.');
-        }
-        if (!registration?.configured || !registration?.confirmed) {
-          trailNotices.push('A integração de armazenamento está indisponível no momento. A sessão continua localmente e a avaliação final será preservada neste dispositivo.');
-        }
-        if (trailNotices.length) document.getElementById('trailStatus').textContent = trailNotices.join(' ');
-      })
-      .catch((error) => {
-        session.registered = false;
-        state.session = session;
-        state.assessment = null;
-        state.pendingRegistration = null;
-        clearErrors();
-        renderTrail();
-        showPage('trail');
-        document.getElementById('trailStatus').textContent =
-          `A sessão foi iniciada localmente, mas o serviço de armazenamento está indisponível: ${error.message || 'falha de conexão'}. A avaliação final será salva neste dispositivo até a conexão voltar.`;
-      })
-      .finally(() => {
-        questionnaireSubmitting = false;
-        submitButton.disabled = false;
-      });
+    state.session = session;
+    state.pendingRegistration = null;
+    clearErrors();
+    renderTrail();
+    showPage('trail');
+    questionnaireSubmitting = false;
+    submitButton.disabled = false;
+    if (SessionStore.endpoint()) {
+      Promise.resolve()
+        .then(() => SessionStore.registerSession(session))
+        .then((registration) => { session.registered = Boolean(registration?.confirmed); })
+        .catch((error) => console.warn('Não foi possível registrar a sessão. O jogo continua normalmente:', error?.message || String(error)));
+    }
   }
 
   function requestChallenge(foundationKey) {
@@ -703,229 +593,32 @@
     };
   }
 
-  function setFeedbackStatus(message, status = 'waiting') {
-    const element = document.getElementById('feedbackStorageStatus');
-    element.textContent = message;
-    element.dataset.state = status;
-  }
-
   function openExperienceCompletion() {
     if (!isTrackComplete()) return false;
-    state.assessment = { rating: '', comment: '', submitted: false, confirmed: false, queued: false };
-    document.getElementById('congratulationsStep').hidden = false;
-    document.getElementById('experienceFeedbackStep').hidden = true;
-    document.getElementById('experienceFeedbackForm').reset();
-    document.querySelectorAll('#experienceFeedbackForm input, #experienceFeedbackForm textarea')
-      .forEach((field) => { field.disabled = false; });
-    document.getElementById('finishSession').disabled = true;
-    document.getElementById('submitExperienceFeedback').disabled = false;
-    document.getElementById('submitExperienceFeedback').textContent = 'Enviar avaliação';
-    document.getElementById('feedbackStorageStatus').textContent = '';
-    document.getElementById('feedbackStorageStatus').dataset.state = '';
-    document.getElementById('feedbackIntegrationNote').textContent = SessionStore.endpoint()
-      ? ''
-      : 'A integração com a planilha não está configurada. Sem um endpoint, a avaliação ficará marcada como pendente neste dispositivo e não será apresentada como enviada.';
-    document.getElementById('finalScore').textContent =
-      `Você concluiu 6 de 6 desafios e conquistou ${Learning.progress(state.learning, FOUNDATIONS).score} pontos.`;
     return showPage('completion');
   }
 
-  function buildCompletionRecord() {
-    const comment = document.getElementById('experienceComment').value.trim();
-    return {
-      rating: document.querySelector('[name="experienceRating"]:checked')?.value || '',
-      comment,
-      completedAt: new Date().toISOString(),
-      track: {
-        status: 'complete',
-        completedChallenges: Learning.progress(state.learning, FOUNDATIONS).completed,
-        score: Learning.progress(state.learning, FOUNDATIONS).score
-      }
-    };
+  function showRestartConfirmation() {
+    if (!state.session) return;
+    if (!document.getElementById('navigationDrawer').hidden) setMenuOpen(false);
+    const dialog = document.getElementById('restartConfirmation');
+    dialog.showModal();
+    document.getElementById('cancelRestart').focus();
   }
 
-  function makePendingSubmission(completion) {
-    return {
-      session: {
-        id: state.session.id,
-        startedAt: state.session.startedAt,
-        player: state.session.player
-      },
-      registered: state.session.registered,
-      completion
-    };
-  }
-
-  function clearQueuedAssessment() {
-    if (!state.session) return true;
-    const saved = removePendingSubmission(state.session.id);
-    if (!saved) setFeedbackStatus('Não foi possível atualizar o envio pendente neste dispositivo.', 'error');
-    return saved;
-  }
-
-  async function submitExperienceFeedback(event) {
-    event.preventDefault();
-    if (!isTrackComplete() || !state.assessment) return;
-    const currentRating = document.querySelector('[name="experienceRating"]:checked')?.value || '';
-    const currentComment = document.getElementById('experienceComment').value.trim();
-    const reuseCompletion = state.assessment.submitted &&
-      state.assessment.rating === currentRating && state.assessment.comment === currentComment;
-    const completion = reuseCompletion ? state.assessment.completion : buildCompletionRecord();
-    if (!['good', 'very-good', 'excellent'].includes(completion.rating)) {
-      setFeedbackStatus('Escolha Bom, Muito bom ou Excelente para continuar.', 'error');
-      document.querySelector('[name="experienceRating"]')?.focus();
-      return;
-    }
-    if (state.assessment.confirmed) return;
-
-    const submitButton = document.getElementById('submitExperienceFeedback');
-    const finishButton = document.getElementById('finishSession');
-    submitButton.disabled = true;
-    finishButton.disabled = true;
-    submitButton.textContent = 'Enviando…';
-    state.assessment.rating = completion.rating;
-    state.assessment.comment = completion.comment;
-    state.assessment.completion = completion;
-    state.assessment.submitted = true;
-    state.assessment.queued = false;
-    const pending = makePendingSubmission(completion);
-
-    if (!SessionStore.endpoint()) {
-      const storedItems = readPendingSubmissions();
-      if (!storedItems) {
-        setFeedbackStatus('Não foi possível ler os envios pendentes. Os dados desta avaliação continuam nesta tela.', 'error');
-        submitButton.disabled = false;
-        submitButton.textContent = 'Tentar novamente';
-        return;
-      }
-      const items = storedItems.filter((item) => item.session.id !== pending.session.id);
-      items.push(pending);
-      if (!savePendingSubmissions(items)) {
-        setFeedbackStatus('Não foi possível preservar a avaliação neste dispositivo. Seus dados continuam nesta tela; tente novamente.', 'error');
-        submitButton.disabled = false;
-        submitButton.textContent = 'Tentar novamente';
-        return;
-      }
-      state.assessment.queued = true;
-      const pendingCount = readPendingSubmissions()?.length;
-      updatePendingNotice(`${pendingCount ?? 1} avaliação(ões) ainda não enviada(s). Configure o serviço de armazenamento; os dados permanecem neste dispositivo.`);
-      finishButton.disabled = false;
-      setFeedbackStatus('Avaliação ainda não enviada: a integração não está configurada. Os dados foram preservados neste dispositivo; a sessão pode ser finalizada sem confirmação externa.', 'error');
-      submitButton.disabled = false;
-      submitButton.textContent = 'Tentar novamente';
-      return;
-    }
-
-    try {
-      if (!state.session.registered) {
-        await SessionStore.registerSession(state.session);
-        state.session.registered = true;
-      }
-      await SessionStore.completeSession(state.session, completion);
-      const localQueueCleared = removePendingSubmission(state.session.id);
-      const remaining = readPendingSubmissions();
-      if (remaining) {
-        updatePendingNotice(remaining.length
-          ? 'Há avaliações anteriores pendentes neste dispositivo; elas ainda não foram enviadas.'
-          : '');
-      }
-      state.assessment.confirmed = true;
-      document.querySelectorAll('#experienceFeedbackForm input, #experienceFeedbackForm textarea')
-        .forEach((field) => { field.disabled = true; });
-      finishButton.disabled = false;
-      submitButton.textContent = 'Avaliação registrada';
-      setFeedbackStatus(
-        localQueueCleared
-          ? 'Avaliação registrada e confirmada pelo serviço. Você já pode finalizar a sessão.'
-          : 'O serviço confirmou a avaliação. A fila local não pôde ser atualizada; uma nova tentativa será idempotente.',
-        'confirmed'
-      );
-    } catch (error) {
-      const storedItems = readPendingSubmissions();
-      const items = storedItems?.filter((item) => item.session.id !== pending.session.id) || [];
-      items.push(pending);
-      const preserved = !!storedItems && savePendingSubmissions(items);
-      state.assessment.queued = preserved;
-      if (preserved) updatePendingNotice('Uma avaliação ainda aguarda envio confirmado. Os dados ficam preservados neste dispositivo.');
-      setFeedbackStatus(
-        preserved
-          ? `Não foi possível confirmar o registro: ${error.message} Seus dados foram preservados; verifique a conexão e tente novamente.`
-          : `Não foi possível confirmar nem preservar o registro: ${error.message} Mantenha esta tela aberta e tente novamente.`,
-        'error'
-      );
-      submitButton.disabled = false;
-      submitButton.textContent = 'Tentar novamente';
-    }
-  }
-
-  function assessmentChanged() {
-    if (!state.assessment || state.assessment.confirmed || !state.assessment.submitted) return;
-    if (!clearQueuedAssessment()) return;
-    state.assessment.submitted = false;
-    state.assessment.queued = false;
-    state.assessment.rating = '';
-    state.assessment.comment = '';
-    document.getElementById('finishSession').disabled = true;
-    document.getElementById('submitExperienceFeedback').textContent = 'Enviar avaliação';
-    document.getElementById('submitExperienceFeedback').disabled = false;
-    setFeedbackStatus('Resposta atualizada. Envie a avaliação novamente.', 'waiting');
-  }
-
-  function resetSession() {
-    try {
-      localStorage.removeItem(PROGRESS_KEY);
-      if (localStorage.getItem(PROGRESS_KEY) !== null) throw new Error('O progresso anterior continua no armazenamento local.');
-    } catch (_) {
-      try {
-        localStorage.setItem(PROGRESS_KEY, JSON.stringify(Learning.toStorage(Learning.createState(CHALLENGE_IDS))));
-      } catch (_) {
-        document.getElementById('feedbackStorageStatus').textContent =
-          'Não foi possível limpar o progresso anterior. A sessão continua aberta para evitar misturar participantes.';
-        document.getElementById('feedbackStorageStatus').dataset.state = 'error';
-        return false;
-      }
-    }
-
-    clearTimeout(splashTimer);
-    clearTimeout(splashFinishTimer);
+  function restartTrail() {
+    if (!state.session) return false;
     window.ListenerGame?.resetSession();
     window.ListenerGame?.stopVoice();
     stopSpeech();
-    if (audioContext) {
-      audioContext.close().catch(() => {});
-      audioContext = null;
-    }
-    if (!document.getElementById('navigationDrawer').hidden) setMenuOpen(false);
-    state.session = null;
     state.learning = Learning.createState(CHALLENGE_IDS);
     state.completedChallenges = state.learning.completedChallenges;
     state.currentFoundation = null;
     state.currentChallengeId = null;
-    state.assessment = null;
     state.pendingRegistration = null;
-    playerForm.reset();
-    clearErrors();
-    document.getElementById('experienceFeedbackForm').reset();
-    document.getElementById('feedbackStorageStatus').textContent = '';
-    document.getElementById('feedbackIntegrationNote').textContent = '';
-    document.getElementById('otherSourceField').hidden = true;
-    document.getElementById('accessDetail').required = false;
-    document.getElementById('navigationMenuToggle').hidden = true;
-    document.body.classList.remove('game-open');
-    document.querySelectorAll('[data-page]').forEach((page) => { page.hidden = page.dataset.page !== 'home'; });
-    state.currentScreen = 'home';
-    header.hidden = true;
-    splash.classList.remove('is-leaving');
-    splash.hidden = false;
-    window.scrollTo(0, 0);
-    splashTimer = window.setTimeout(finishSplash, 620);
-    return true;
-  }
-
-  function finishExperienceSession() {
-    if (!isTrackComplete() || !state.assessment?.rating || !state.assessment.submitted) return false;
-    if (!state.assessment.confirmed && !state.assessment.queued) return false;
-    return resetSession();
+    if (!saveProgress()) console.warn('O progresso da trilha foi reiniciado nesta sessão, mas não pôde ser salvo neste navegador.');
+    renderTrail();
+    return showPage('trail');
   }
 
   ACCESS_SOURCES.forEach((source) => {
@@ -951,20 +644,25 @@
     }
   });
   playerForm.addEventListener('submit', submitQuestionnaire);
-  document.getElementById('continueToFeedback').addEventListener('click', () => {
-    if (!isTrackComplete() || !state.assessment) return;
-    document.getElementById('congratulationsStep').hidden = true;
-    document.getElementById('experienceFeedbackStep').hidden = false;
-    document.querySelector('[name="experienceRating"]')?.focus();
+  let restartFocusTarget = null;
+  document.getElementById('restartConfirmation').addEventListener('close', (event) => {
+    const focusTarget = restartFocusTarget;
+    restartFocusTarget = null;
+    if (focusTarget?.isConnected && !focusTarget.hidden) focusTarget.focus();
   });
-  document.getElementById('experienceFeedbackForm').addEventListener('submit', submitExperienceFeedback);
-  document.querySelectorAll('[name="experienceRating"]').forEach((input) =>
-    input.addEventListener('change', assessmentChanged));
-  document.getElementById('experienceComment').addEventListener('input', assessmentChanged);
-  document.getElementById('finishSession').addEventListener('click', () => {
-    if (!finishExperienceSession()) {
-      setFeedbackStatus('A sessão só pode ser finalizada depois de concluir a trilha, escolher uma avaliação e preservar ou confirmar o registro.', 'error');
-    }
+  document.getElementById('cancelRestart').addEventListener('click', () =>
+    document.getElementById('restartConfirmation').close());
+  document.getElementById('confirmRestart').addEventListener('click', () => {
+    document.getElementById('restartConfirmation').close();
+    restartTrail();
+  });
+  document.getElementById('restartTrailButton').addEventListener('click', () => {
+    restartFocusTarget = document.getElementById('navigationMenuToggle');
+    showRestartConfirmation();
+  });
+  document.getElementById('restartGameButton').addEventListener('click', (event) => {
+    restartFocusTarget = event.currentTarget;
+    showRestartConfirmation();
   });
   document.getElementById('editPlayerButton').addEventListener('click', () => showPage('questionnaire'));
   document.querySelectorAll('[data-foundation]').forEach((button) => {
@@ -986,7 +684,7 @@
     completeChallenge,
     getProgrammingCapabilities,
     openExperienceCompletion,
-    finishExperienceSession,
+    restartTrail,
     returnToTrail,
     getSettings: () => ({ ...state.settings }),
     getHintStatus: (challengeId) => ({
@@ -1019,8 +717,7 @@
   document.querySelectorAll('[data-page-link]').forEach((button) => {
     button.addEventListener('click', (event) => {
       event.preventDefault();
-      if (isTrackComplete() && !['game', 'completion', 'about', 'educator'].includes(button.dataset.pageLink)) return;
-      if (state.session && button.dataset.pageLink === 'home') return;
+      if (isTrackComplete() && !['home', 'game', 'completion', 'about', 'educator'].includes(button.dataset.pageLink)) return;
       if (state.currentScreen === 'game' && button.dataset.pageLink !== 'game' &&
           window.ListenerGame?.getState().running) {
         showPage(button.dataset.pageLink);
@@ -1083,7 +780,6 @@
   document.getElementById('splashSkip').addEventListener('click', finishSplash);
   applySettings();
 
-  void flushPendingSubmissions();
   header.hidden = true;
   showPage('home');
   header.hidden = true;

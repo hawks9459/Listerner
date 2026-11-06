@@ -42,7 +42,9 @@
 
   function defineChallenge(challenge) {
     const obstacles = Object.freeze(challenge.obstacles);
-    const allowedCommands = ['forward', 'turn90L', 'turn90R', 'repeat', 'if'];
+    const allowedCommands = ['forward', 'turn90L', 'turn90R'];
+    if (challenge.foundation === 'repetition') allowedCommands.push('repeat');
+    if (challenge.foundation === 'conditionals') allowedCommands.push('if');
     return Object.freeze({
       ...challenge,
       obstacles,

@@ -151,18 +151,25 @@
         heading.append(open);
       }
       if (command.type === 'repeat') {
-        const times = document.createElement('button');
-        times.type = 'button';
-        times.className = 'program-edit-button';
-        times.textContent = `Alterar ×${command.times}`;
-        times.setAttribute('aria-label', `Alterar quantidade de repetições, atualmente ${command.times}`);
-        times.addEventListener('click', () => {
-          if (viewState.running || viewState.completed) return;
-          command.times = command.times >= 5 ? 2 : command.times + 1;
-          viewState.lastExecution = null;
-          renderProgram();
-        });
-        heading.append(times);
+        const quantity = document.createElement('span');
+        quantity.className = 'program-repeat-quantity';
+        quantity.textContent = `Repetições: ${command.times}`;
+        heading.append(quantity);
+        const decrease = document.createElement('button');
+        decrease.type = 'button';
+        decrease.className = 'program-repeat-button';
+        decrease.textContent = '−';
+        decrease.setAttribute('aria-label', `Diminuir repetições, atualmente ${command.times}`);
+        decrease.disabled = command.times <= 1;
+        decrease.addEventListener('click', () => changeRepeatCount(command, -1));
+        const increase = document.createElement('button');
+        increase.type = 'button';
+        increase.className = 'program-repeat-button';
+        increase.textContent = '+';
+        increase.setAttribute('aria-label', `Aumentar repetições, atualmente ${command.times}`);
+        increase.disabled = command.times >= 10;
+        increase.addEventListener('click', () => changeRepeatCount(command, 1));
+        heading.append(decrease, increase);
       }
       const remove = document.createElement('button');
       remove.type = 'button';
@@ -212,6 +219,13 @@
       });
       list.append(item);
     });
+  }
+
+  function changeRepeatCount(command, change) {
+    if (viewState.running || viewState.completed) return;
+    command.times = Math.max(1, Math.min(10, Number(command.times) + change));
+    viewState.lastExecution = null;
+    renderProgram();
   }
 
   function appendNestedCommands(parent, title, commands, scope) {
@@ -273,7 +287,7 @@
       ? 'Organize os movimentos na ordem que escolher. Por enquanto, use apenas comandos básicos.'
       : permissions.foundation === 'repetition'
         ? 'Use “Repita” para executar ações mais de uma vez. Os comandos básicos continuam disponíveis.'
-        : 'Use “Se” para escolher ações conforme o caminho. Os movimentos e a repetição continuam disponíveis.';
+        : 'Use “Se” para escolher ações conforme o caminho. Os comandos básicos continuam disponíveis.';
     blocksHelp.textContent = `${foundationTip} Avançar segue as ruas conectadas; prédios e barreiras bloqueiam a passagem.`;
     updateVoiceExamples(permissions);
   }
@@ -290,7 +304,7 @@
       ? 'Diga um movimento de cada vez. Repita e condições serão ensinadas nas próximas etapas.'
       : permissions.foundation === 'repetition'
         ? 'Diga “repita”, inclua ações e feche com “fim da repetição”. Condições virão depois.'
-        : 'Diga a condição, as ações de cada ramo e “fim da condição”. Os recursos anteriores continuam disponíveis.';
+        : 'Diga a condição, as ações de cada ramo e “fim da condição”.';
     examples.replaceChildren();
     lines.flat().forEach((phrase) => {
       const item = document.createElement('li');
@@ -649,7 +663,7 @@
         ? 'Você ensinou o Listener a organizar passos, repetir ações e escolher caminhos. Parabéns!'
         : 'Você concluiu os seis desafios e aplicou Sequenciamento, Repetição e Condicionais.';
       message.textContent += ` Pontuação deste desafio: ${completion.points} pontos.${persistenceNotice}`;
-      nextButton.textContent = 'Continuar para avaliação';
+      nextButton.textContent = 'Concluir trilha';
       nextButton.hidden = false;
       trailButton.hidden = true;
       return;
@@ -1392,6 +1406,7 @@
     }),
     getChallenges: () => CHALLENGES,
     addCommand,
+    stopProgram,
     processVoiceTranscript: handleVoiceTranscript
   });
 })(window);
