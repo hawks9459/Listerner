@@ -67,7 +67,12 @@
     if (previousScreen === 'game' && name !== 'game') window.ListenerGame?.stopVoice();
     if (name === 'performance') renderPerformance();
     if (name === 'settings') renderSettings();
-    if (name === 'completion') document.getElementById('navigationMenuToggle').hidden = true;
+    if (name === 'completion') {
+      document.getElementById('navigationMenuToggle').hidden = true;
+      document.querySelectorAll('#learningSurvey input').forEach((input) => {
+        input.checked = Number(input.value) === state.session.learningRating;
+      });
+    }
     renderNavigation();
     if (name === 'game') window.ListenerGame?.resize?.();
     window.scrollTo(0, 0);
@@ -522,6 +527,7 @@
       id: SessionStore.createSessionId(),
       startedAt: new Date().toISOString(),
       revision: 0,
+      learningRating: null,
       registered: false
     };
   }
@@ -536,6 +542,7 @@
       startedAt: session.startedAt,
       updatedAt: new Date().toISOString(),
       participant: session.player,
+      ...(session.learningRating !== null ? { learningRating: session.learningRating } : {}),
       revision: session.revision,
       level: challenge?.number || 0,
       completed
@@ -625,6 +632,15 @@
       progressSaved: saved
     };
   }
+
+  document.getElementById('learningSurvey').addEventListener('change', (event) => {
+    const choice = event.target;
+    if (state.currentScreen !== 'completion' || !isTrackComplete() || choice.name !== 'learningRating' || !choice.checked) return;
+    const rating = Number(choice.value);
+    if (!Number.isInteger(rating) || rating < 1 || rating > 5 || rating === state.session.learningRating) return;
+    state.session.learningRating = rating;
+    recordCheckpoint();
+  });
 
   function openExperienceCompletion() {
     if (!isTrackComplete()) return false;
