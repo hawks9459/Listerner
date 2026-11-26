@@ -26,13 +26,12 @@
   const otherSourceField = document.getElementById('otherSourceField');
   const state = {
     session: null,
-    learning: loadLearning(),
+    learning: Learning.createState(CHALLENGE_IDS),
     completedChallenges: null,
     settings: loadSettings(),
     currentScreen: 'home',
     currentFoundation: null,
     currentChallengeId: null,
-    pendingRegistration: null,
   };
   document.querySelectorAll('[data-feedback-link]').forEach((link) => {
     link.href = FEEDBACK_FORM_URL;
@@ -459,6 +458,11 @@
     }
     state.session = null;
     playerForm.reset();
+    const saved = loadLearning();
+    const hasProgress = Object.values(saved.completedChallenges).some(Boolean) ||
+      Object.values(saved.hintReveals).some(count => count > 0);
+    document.getElementById('savedProgressField').hidden =
+      !hasProgress || SessionStore.trackIsComplete(saved.completedChallenges, CHALLENGE_IDS);
     clearErrors();
     otherSourceField.hidden = true;
     document.getElementById('accessDetail').required = false;
@@ -481,34 +485,57 @@
       age: result.age,
       access: { source: values.accessSource, detail: values.accessSource === 'other' ? String(values.accessDetail).trim() : '' },
     };
-    if (SessionStore.trackIsComplete(state.completedChallenges, CHALLENGE_IDS)) {
-      state.learning = Learning.createState(CHALLENGE_IDS);
+    const editing = Boolean(state.session);
+    if (!editing) {
+      state.learning = document.getElementById('useSavedProgress').checked ? loadLearning() : Learning.createState(CHALLENGE_IDS);
+      if (SessionStore.trackIsComplete(state.learning.completedChallenges, CHALLENGE_IDS)) {
+        state.learning = Learning.createState(CHALLENGE_IDS);
+      }
       state.completedChallenges = state.learning.completedChallenges;
-      if (!saveProgress()) console.warn('A nova trilha foi iniciada, mas não foi possível salvar o progresso inicial neste navegador.');
+      state.currentFoundation = null;
+      state.currentChallengeId = null;
+      window.ListenerGame?.resetSession();
     }
-    const session = {
-      id: SessionStore.createSessionId(),
-      startedAt: new Date().toISOString(),
-      player: participant,
-      profile: getProfile(result.age),
-      registered: false
-    };
+    document.getElementById('savedProgressField').hidden = true;
+    const session = state.session || newSession();
+    session.player = participant;
+    session.profile = getProfile(result.age);
     const submitButton = playerForm.querySelector('[type="submit"]');
     questionnaireSubmitting = true;
     submitButton.disabled = true;
     state.session = session;
-    state.pendingRegistration = null;
+    saveProgress();
+    recordCheckpoint();
     clearErrors();
     renderTrail();
     showPage('trail');
     questionnaireSubmitting = false;
     submitButton.disabled = false;
-    if (SessionStore.endpoint()) {
-      Promise.resolve()
-        .then(() => SessionStore.registerSession(session))
-        .then((registration) => { session.registered = Boolean(registration?.confirmed); })
-        .catch((error) => console.warn('Não foi possível registrar a sessão. O jogo continua normalmente:', error?.message || String(error)));
-    }
+  }
+
+  function newSession() {
+    return {
+      id: SessionStore.createSessionId(),
+      startedAt: new Date().toISOString(),
+      revision: 0,
+      registered: false
+    };
+  }
+
+  function recordCheckpoint() {
+    const session = state.session;
+    const challenge = window.ListenerMissions.CHALLENGES[state.currentChallengeId];
+    const completed = CHALLENGE_IDS.filter(id => state.completedChallenges[id]).length;
+    session.revision += 1;
+    SessionStore.queueCheckpoint({
+      sessionId: session.id,
+      startedAt: session.startedAt,
+      updatedAt: new Date().toISOString(),
+      participant: session.player,
+      revision: session.revision,
+      level: challenge?.number || 0,
+      completed
+    });
   }
 
   function requestChallenge(foundationKey) {
@@ -538,6 +565,7 @@
     if (!window.ListenerGame?.startChallenge(challengeId)) return false;
     state.currentFoundation = foundationKey || foundation.key;
     state.currentChallengeId = challengeId;
+    recordCheckpoint();
     showPage('game');
     renderNavigation();
     return true;
@@ -571,6 +599,7 @@
     );
     if (!reward.accepted) return { accepted: false, nextChallengeId: null, reason: reward.reason };
     const saved = saveProgress();
+    recordCheckpoint();
     renderTrail();
     renderPerformance();
     if (!saved) document.getElementById('trailStatus').textContent = 'O progresso vale nesta sessão, mas não pôde ser salvo neste navegador.';
@@ -615,7 +644,8 @@
     state.completedChallenges = state.learning.completedChallenges;
     state.currentFoundation = null;
     state.currentChallengeId = null;
-    state.pendingRegistration = null;
+    state.session = { ...state.session, ...newSession() };
+    recordCheckpoint();
     if (!saveProgress()) console.warn('O progresso da trilha foi reiniciado nesta sessão, mas não pôde ser salvo neste navegador.');
     renderTrail();
     return showPage('trail');
@@ -669,6 +699,9 @@
     button.addEventListener('click', () => requestChallenge(button.dataset.foundation));
   });
   document.getElementById('returnToTrail').addEventListener('click', returnToTrail);
+  window.addEventListener('listener:checkpoint-saved', (event) => {
+    if (state.session?.id === event.detail) state.session.registered = true;
+  });
   window.ListenerGame?.init();
   window.ListenerApp = Object.freeze({
     getState: () => ({

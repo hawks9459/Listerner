@@ -110,10 +110,11 @@
           <input id="accessDetail" name="accessDetail" type="text" maxlength="120" aria-describedby="accessDetailError">
           <span class="field-error" id="accessDetailError"></span>
         </div>
+        <label id="savedProgressField" hidden><input type="checkbox" id="useSavedProgress"> Continuar minha trilha salva neste navegador</label>
         <p class="form-notice" id="formNotice" role="status" aria-live="polite"></p>
         <button class="play-button form-submit" type="submit"><span>Ver a trilha</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button>
       </form>
-      <p class="privacy-note">As informações ajudam a preparar sua sessão. Você pode jogar normalmente mesmo se o registro externo estiver indisponível.</p>
+      <p class="privacy-note">Ao clicar em “Ver a trilha”, seu nome, idade, resposta sobre como conheceu o jogo e progresso podem ser registrados na planilha da equipe. Você pode jogar normalmente mesmo se o registro externo estiver indisponível.</p>
     </section>
 
     <section class="page trail-page" id="page-trail" data-page="trail" hidden>
@@ -494,10 +495,10 @@
   <script src="listener-missions.js?v=20261105-4"></script>
   <script src="listener-voice.js?v=20261015-3"></script>
   <script src="listener-learning.js?v=20261015-3"></script>
-  <script>window.LISTENER_CONFIG = window.LISTENER_CONFIG || { sessionEndpoint: 'https://script.google.com/macros/s/AKfycbwmQymLeZ74OMYbDy-9BZhi2lo98nV1ipFAgqT24yxswi2ekFPm_X0ugoToeFKAN1JQJA/exec' };</script>
-  <script src="listener-session-store.js?v=20261015-3"></script>
+  <script src="listener-config.js"></script>
+  <script src="listener-session-store.js?v=20261126-1"></script>
   <script src="listener-game.js?v=20261105-6"></script>
-  <script src="listener.js?v=20261105-5"></script>
+  <script src="listener.js?v=20261126-1"></script>
   <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
   <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "71ed18de034a43f8b6b36870ce601aa0"}'></script><!-- End Cloudflare Web Analytics -->
 </body>

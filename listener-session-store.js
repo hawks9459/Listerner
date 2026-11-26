@@ -43,10 +43,11 @@
       response = await fetcher(parsedUrl.href, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        keepalive: true,
         body: JSON.stringify({
           action,
           ...record,
-          idempotencyKey: `${record.sessionId}:${action}`
+          idempotencyKey: [record.sessionId, action, record.revision].filter(value => value !== undefined).join(':')
         })
       });
     } catch (error) {
@@ -85,7 +86,64 @@
     }, fetcher);
   }
 
-  const api = Object.freeze({ endpoint, createSessionId, trackIsComplete, registerSession, completeSession });
+  const keyPrefix = 'listener:sheet:v1:';
+  const pending = new Map();
+  const inFlight = new Set();
+
+  function queueCheckpoint(record) {
+    if (!endpoint()) return;
+    const key = keyPrefix + record.sessionId;
+    pending.set(key, record);
+    try { global.localStorage.setItem(key, JSON.stringify(record)); } catch (_) { /* Retry in memory. */ }
+    void flushCheckpoint(key);
+  }
+
+  async function flushCheckpoint(key) {
+    if (inFlight.has(key)) return;
+    inFlight.add(key);
+    try {
+      while (pending.has(key)) {
+        const record = pending.get(key);
+        const result = await send('save-checkpoint', record);
+        if (!result.confirmed) break;
+        global.dispatchEvent(new CustomEvent('listener:checkpoint-saved', { detail: record.sessionId }));
+        if (pending.get(key) !== record) continue;
+        pending.delete(key);
+        try {
+          const saved = JSON.parse(global.localStorage.getItem(key));
+          if (saved?.revision === record.revision) global.localStorage.removeItem(key);
+        } catch (_) { /* Storage can be unavailable in private browsing. */ }
+      }
+    } catch (error) {
+      console.warn('Registro da partida pendente:', error.message);
+    } finally {
+      inFlight.delete(key);
+    }
+  }
+
+  function retryPending() {
+    if (!endpoint()) return;
+    try {
+      const storage = global.localStorage;
+      for (let i = 0; i < storage.length; i++) {
+        const key = storage.key(i);
+        if (!key?.startsWith(keyPrefix)) continue;
+        const record = JSON.parse(storage.getItem(key));
+        if (record && (!pending.has(key) || record.revision > pending.get(key).revision)) {
+          pending.set(key, record);
+        }
+      }
+    } catch (_) { /* Pending in-memory records can still be sent. */ }
+    for (const key of pending.keys()) void flushCheckpoint(key);
+  }
+
+  if (typeof window !== 'undefined') {
+    global.addEventListener('online', retryPending);
+    global.addEventListener('pageshow', retryPending);
+    global.setInterval(retryPending, 30000);
+  }
+
+  const api = Object.freeze({ endpoint, createSessionId, trackIsComplete, registerSession, completeSession, queueCheckpoint });
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   global.ListenerSessionStore = api;
 })(typeof window !== 'undefined' ? window : globalThis);
