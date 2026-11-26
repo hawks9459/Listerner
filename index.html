@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#cb070b">
   <title>Listener | RPRT HAWKS #9459</title>
-  <link rel="stylesheet" href="listener.css?v=20261105-4">
+  <link rel="stylesheet" href="listener.css?v=20261126-2">
   <link rel="stylesheet" href="listener-game.css?v=20261105-4">
 </head>
 <body>
@@ -110,11 +110,72 @@
           <input id="accessDetail" name="accessDetail" type="text" maxlength="120" aria-describedby="accessDetailError">
           <span class="field-error" id="accessDetailError"></span>
         </div>
+        <fieldset class="logic-level">
+          <legend>Quanto contato você teve com lógica de programação?</legend>
+          <div class="logic-options">
+            <label class="logic-option" style="--face: #ed435d; --ink: #69192f">
+              <input type="radio" id="logicContact1" name="logicContact" value="1" required aria-describedby="logicContact1Error">
+              <span class="logic-card">
+                <svg viewBox="0 0 40 40" aria-hidden="true" focusable="false">
+                  <circle cx="20" cy="20" r="19" fill="var(--face)"/>
+                  <g fill="currentColor"><ellipse cx="14" cy="18" rx="1.7" ry="2.6"/><ellipse cx="26" cy="18" rx="1.7" ry="2.6"/></g>
+                  <g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="m12 12 4 2m8 0 4-2M14 28q6-8 12 0"/></g>
+                </svg>
+                <span>1 · Nada</span>
+              </span>
+            </label>
+            <label class="logic-option" style="--face: #fa9739; --ink: #81421a">
+              <input type="radio" id="logicContact2" name="logicContact" value="2" required aria-describedby="logicContact1Error">
+              <span class="logic-card">
+                <svg viewBox="0 0 40 40" aria-hidden="true" focusable="false">
+                  <circle cx="20" cy="20" r="19" fill="var(--face)"/>
+                  <g fill="currentColor"><ellipse cx="14" cy="18" rx="1.7" ry="2.6"/><ellipse cx="26" cy="18" rx="1.7" ry="2.6"/></g>
+                  <g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M14 27q6-7 12 0"/></g>
+                </svg>
+                <span>2 · Pouco contato</span>
+              </span>
+            </label>
+            <label class="logic-option" style="--face: #ffd04a; --ink: #735622">
+              <input type="radio" id="logicContact3" name="logicContact" value="3" required aria-describedby="logicContact1Error">
+              <span class="logic-card">
+                <svg viewBox="0 0 40 40" aria-hidden="true" focusable="false">
+                  <circle cx="20" cy="20" r="19" fill="var(--face)"/>
+                  <g fill="currentColor"><ellipse cx="14" cy="18" rx="1.7" ry="2.6"/><ellipse cx="26" cy="18" rx="1.7" ry="2.6"/></g>
+                  <g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M14 26h12"/></g>
+                </svg>
+                <span>3 · Algum contato</span>
+              </span>
+            </label>
+            <label class="logic-option" style="--face: #93c85f; --ink: #315e31">
+              <input type="radio" id="logicContact4" name="logicContact" value="4" required aria-describedby="logicContact1Error">
+              <span class="logic-card">
+                <svg viewBox="0 0 40 40" aria-hidden="true" focusable="false">
+                  <circle cx="20" cy="20" r="19" fill="var(--face)"/>
+                  <g fill="currentColor"><ellipse cx="14" cy="18" rx="1.7" ry="2.6"/><ellipse cx="26" cy="18" rx="1.7" ry="2.6"/></g>
+                  <g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M14 24q6 9 12 0"/></g>
+                </svg>
+                <span>4 · Bastante contato</span>
+              </span>
+            </label>
+            <label class="logic-option" style="--face: #36b7df; --ink: #114966">
+              <input type="radio" id="logicContact5" name="logicContact" value="5" required aria-describedby="logicContact1Error">
+              <span class="logic-card">
+                <svg viewBox="0 0 40 40" aria-hidden="true" focusable="false">
+                  <circle cx="20" cy="20" r="19" fill="var(--face)"/>
+                  <g fill="currentColor"><ellipse cx="14" cy="18" rx="1.7" ry="2.6"/><ellipse cx="26" cy="18" rx="1.7" ry="2.6"/></g>
+                  <g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M13 23h14c0 9-14 9-14 0Z" fill="currentColor"/></g>
+                </svg>
+                <span>5 · Tive muito contato</span>
+              </span>
+            </label>
+          </div>
+          <span class="field-error" id="logicContact1Error" aria-live="polite"></span>
+        </fieldset>
         <label id="savedProgressField" hidden><input type="checkbox" id="useSavedProgress"> Continuar minha trilha salva neste navegador</label>
         <p class="form-notice" id="formNotice" role="status" aria-live="polite"></p>
         <button class="play-button form-submit" type="submit"><span>Ver a trilha</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button>
       </form>
-      <p class="privacy-note">Ao clicar em “Ver a trilha”, seu nome, idade, resposta sobre como conheceu o jogo e progresso podem ser registrados na planilha da equipe. Você pode jogar normalmente mesmo se o registro externo estiver indisponível.</p>
+      <p class="privacy-note">Ao clicar em “Ver a trilha”, seu nome, idade, contato com lógica de programação, resposta sobre como conheceu o jogo e progresso podem ser registrados na planilha da equipe. Você pode jogar normalmente mesmo se o registro externo estiver indisponível.</p>
     </section>
 
     <section class="page trail-page" id="page-trail" data-page="trail" hidden>
@@ -498,7 +559,7 @@
   <script src="listener-config.js"></script>
   <script src="listener-session-store.js?v=20261126-1"></script>
   <script src="listener-game.js?v=20261105-6"></script>
-  <script src="listener.js?v=20261126-1"></script>
+  <script src="listener.js?v=20261126-3"></script>
   <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
   <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "71ed18de034a43f8b6b36870ce601aa0"}'></script><!-- End Cloudflare Web Analytics -->
 </body>

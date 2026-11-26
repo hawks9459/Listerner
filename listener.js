@@ -354,6 +354,9 @@
     if (values.accessSource === 'other' && !String(values.accessDetail || '').trim()) {
       errors.accessDetail = 'Conte brevemente como conheceu ou acessou o jogo.';
     }
+    if (!/^[1-5]$/.test(values.logicContact || '')) {
+      errors.logicContact = 'Escolha uma das cinco opções.';
+    }
     return { valid: Object.keys(errors).length === 0, errors, age, name };
   }
 
@@ -441,7 +444,7 @@
   }
 
   function showErrors(errors) {
-    const fieldIds = { name: 'playerName', age: 'playerAge', accessSource: 'accessSource', accessDetail: 'accessDetail' };
+    const fieldIds = { name: 'playerName', age: 'playerAge', accessSource: 'accessSource', accessDetail: 'accessDetail', logicContact: 'logicContact1' };
     clearErrors();
     Object.entries(errors).forEach(([key, message]) => {
       const field = document.getElementById(fieldIds[key]);
@@ -483,6 +486,7 @@
     const participant = {
       name: result.name,
       age: result.age,
+      logicContact: Number(values.logicContact),
       access: { source: values.accessSource, detail: values.accessSource === 'other' ? String(values.accessDetail).trim() : '' },
     };
     const editing = Boolean(state.session);
@@ -667,6 +671,10 @@
   });
   playerForm.addEventListener('input', (event) => {
     const field = event.target;
+    if (field.name === 'logicContact') {
+      document.getElementById('logicContact1').removeAttribute('aria-invalid');
+      document.getElementById('logicContact1Error').textContent = '';
+    }
     if (field.matches('input, select') && field.hasAttribute('aria-invalid')) {
       field.removeAttribute('aria-invalid');
       const errorId = field.getAttribute('aria-describedby')?.split(' ').find((id) => id.endsWith('Error'));
